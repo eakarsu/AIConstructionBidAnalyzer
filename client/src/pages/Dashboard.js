@@ -118,6 +118,24 @@ const Dashboard = () => {
             <p>AI-powered bid analysis, cost estimation, and risk assessment</p>
             <div className="card-count">8 AI tools</div>
           </div>
+          <div
+            className="dashboard-card"
+            onClick={() => navigate('/ai-lab')}
+          >
+            <span className="card-icon">{'\ud83e\uddea'}</span>
+            <h3>AI Lab</h3>
+            <p>Subcontractor analysis, value engineering, cash flow, dispute analyzer & more</p>
+            <div className="card-count">12 advanced tools</div>
+          </div>
+          <div
+            className="dashboard-card"
+            onClick={() => navigate('/reports')}
+          >
+            <span className="card-icon">{'\ud83d\udccb'}</span>
+            <h3>Reports</h3>
+            <p>Export PDF reports for bid comparisons and cost estimates</p>
+            <div className="card-count">PDF exports</div>
+          </div>
         </div>
       )}
     </div>

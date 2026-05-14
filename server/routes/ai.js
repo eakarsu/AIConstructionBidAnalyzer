@@ -3,13 +3,18 @@ const router = express.Router();
 const axios = require('axios');
 const pool = require('../db');
 const auth = require('../middleware/auth');
+const { aiRateLimiter } = require('../middleware/rateLimiter');
+
+const OPENROUTER_MODEL = 'anthropic/claude-3-5-sonnet-20241022';
+const SYSTEM_PROMPT_BASE =
+  'You are an expert construction estimator and project manager with deep knowledge of commercial construction costs, contract law, and project risk management.';
 
 const callOpenRouter = async (systemPrompt, userData) => {
   const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-    model: process.env.OPENROUTER_MODEL,
+    model: OPENROUTER_MODEL,
     messages: [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: JSON.stringify(userData) }
+      { role: 'user', content: typeof userData === 'string' ? userData : JSON.stringify(userData) }
     ]
   }, {
     headers: {
@@ -20,17 +25,41 @@ const callOpenRouter = async (systemPrompt, userData) => {
   return response.data.choices[0].message.content;
 };
 
-const saveAnalysis = async (feature, inputData, outputData, model) => {
-  await pool.query(
-    `INSERT INTO ai_analyses (feature, input_data, output_data, model_used) VALUES ($1, $2, $3, $4)`,
-    [feature, JSON.stringify(inputData), JSON.stringify({ result: outputData }), model]
+/**
+ * Save AI analysis to ai_analyses table and optionally update project.last_analysis_at.
+ */
+const saveAnalysis = async (analysisType, inputData, resultText, userId, projectId, bidId) => {
+  const result = await pool.query(
+    `INSERT INTO ai_analyses
+       (analysis_type, project_id, bid_id, input_data_json, result_json, model_used, user_id, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+     RETURNING id`,
+    [
+      analysisType,
+      projectId || null,
+      bidId || null,
+      JSON.stringify(inputData),
+      JSON.stringify({ result: resultText }),
+      OPENROUTER_MODEL,
+      userId || null,
+    ]
   );
+
+  // Update project.last_analysis_at if a project_id was provided
+  if (projectId) {
+    await pool.query(
+      'UPDATE projects SET last_analysis_at = NOW() WHERE id = $1',
+      [projectId]
+    ).catch(() => {}); // non-fatal
+  }
+
+  return result.rows[0].id;
 };
 
 // POST /api/ai/analyze-bid
-router.post('/analyze-bid', auth, async (req, res) => {
+router.post('/analyze-bid', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are an expert construction bid analyst with 30+ years of experience. Analyze the provided bid data and give a comprehensive assessment including:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Analyze the provided bid data and give a comprehensive assessment including:
 1. Overall bid competitiveness (is the price reasonable for the scope?)
 2. Potential red flags or concerns
 3. Areas where costs seem too high or too low
@@ -40,7 +69,8 @@ router.post('/analyze-bid', auth, async (req, res) => {
 Provide your analysis in a structured, detailed format.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('analyze-bid', req.body, result, process.env.OPENROUTER_MODEL);
+    const { project_id, bid_id } = req.body;
+    await saveAnalysis('analyze-bid', req.body, result, req.user?.id, project_id, bid_id);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI analyze-bid error:', err.response?.data || err.message);
@@ -49,9 +79,9 @@ Provide your analysis in a structured, detailed format.`;
 });
 
 // POST /api/ai/estimate-cost
-router.post('/estimate-cost', auth, async (req, res) => {
+router.post('/estimate-cost', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are an expert construction cost estimator with deep knowledge of material costs, labor rates, equipment costs, and regional pricing variations. Based on the provided project details, generate a detailed cost estimate including:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Generate a detailed cost estimate including:
 1. Itemized cost breakdown by category (materials, labor, equipment, overhead, profit)
 2. Contingency recommendations (percentage and reasoning)
 3. Cost per square foot analysis
@@ -62,7 +92,7 @@ router.post('/estimate-cost', auth, async (req, res) => {
 Provide specific dollar amounts and percentages in your estimate.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('estimate-cost', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('estimate-cost', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI estimate-cost error:', err.response?.data || err.message);
@@ -71,9 +101,9 @@ Provide specific dollar amounts and percentages in your estimate.`;
 });
 
 // POST /api/ai/assess-risk
-router.post('/assess-risk', auth, async (req, res) => {
+router.post('/assess-risk', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are a construction risk management expert. Analyze the provided project data and provide a comprehensive risk assessment including:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Provide a comprehensive risk assessment including:
 1. Identified risks categorized by type (financial, schedule, safety, environmental, regulatory, technical)
 2. Risk severity rating (Critical, High, Medium, Low) for each risk
 3. Likelihood assessment for each risk
@@ -85,7 +115,7 @@ router.post('/assess-risk', auth, async (req, res) => {
 Provide actionable insights for risk mitigation.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('assess-risk', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('assess-risk', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI assess-risk error:', err.response?.data || err.message);
@@ -94,9 +124,9 @@ Provide actionable insights for risk mitigation.`;
 });
 
 // POST /api/ai/check-compliance
-router.post('/check-compliance', auth, async (req, res) => {
+router.post('/check-compliance', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are a construction regulatory compliance expert with extensive knowledge of building codes, OSHA regulations, ADA requirements, environmental regulations, and local building ordinances. Review the provided project data and provide:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Review compliance requirements and provide:
 1. Applicable building codes and standards (IBC, local amendments)
 2. OSHA safety compliance requirements
 3. ADA accessibility requirements
@@ -110,7 +140,7 @@ router.post('/check-compliance', auth, async (req, res) => {
 Flag any critical compliance issues that could halt construction.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('check-compliance', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('check-compliance', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI check-compliance error:', err.response?.data || err.message);
@@ -119,9 +149,9 @@ Flag any critical compliance issues that could halt construction.`;
 });
 
 // POST /api/ai/analyze-scope
-router.post('/analyze-scope', auth, async (req, res) => {
+router.post('/analyze-scope', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are a construction scope analysis expert specializing in scope definition, scope creep prevention, and work breakdown structures. Analyze the provided project scope and provide:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Analyze the project scope and provide:
 1. Scope completeness assessment (are there missing elements?)
 2. Work Breakdown Structure (WBS) recommendation
 3. Scope gap analysis
@@ -135,7 +165,7 @@ router.post('/analyze-scope', auth, async (req, res) => {
 Highlight any ambiguities that could lead to disputes.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('analyze-scope', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('analyze-scope', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI analyze-scope error:', err.response?.data || err.message);
@@ -144,9 +174,9 @@ Highlight any ambiguities that could lead to disputes.`;
 });
 
 // POST /api/ai/estimate-timeline
-router.post('/estimate-timeline', auth, async (req, res) => {
+router.post('/estimate-timeline', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are a construction scheduling expert with expertise in CPM (Critical Path Method) scheduling, resource leveling, and project timeline optimization. Based on the provided project details, generate:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Generate a detailed project timeline including:
 1. Detailed phase-by-phase timeline with durations
 2. Critical path identification
 3. Key milestones and deadlines
@@ -160,7 +190,7 @@ router.post('/estimate-timeline', auth, async (req, res) => {
 Provide specific date ranges and durations for each phase.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('estimate-timeline', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('estimate-timeline', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI estimate-timeline error:', err.response?.data || err.message);
@@ -169,9 +199,9 @@ Provide specific date ranges and durations for each phase.`;
 });
 
 // POST /api/ai/compare-bids
-router.post('/compare-bids', auth, async (req, res) => {
+router.post('/compare-bids', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are a construction bid evaluation expert specializing in comparative bid analysis. Compare the provided bids and deliver:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Compare the provided bids and deliver:
 1. Side-by-side cost comparison breakdown
 2. Scope coverage comparison (what each bid includes/excludes)
 3. Value engineering opportunities identified across bids
@@ -185,7 +215,7 @@ router.post('/compare-bids', auth, async (req, res) => {
 Provide a clear winner recommendation with supporting rationale.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('compare-bids', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('compare-bids', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI compare-bids error:', err.response?.data || err.message);
@@ -194,9 +224,9 @@ Provide a clear winner recommendation with supporting rationale.`;
 });
 
 // POST /api/ai/optimize-materials
-router.post('/optimize-materials', auth, async (req, res) => {
+router.post('/optimize-materials', auth, aiRateLimiter, async (req, res) => {
   try {
-    const systemPrompt = `You are a construction materials optimization expert with deep knowledge of building materials, sustainable alternatives, supply chain management, and value engineering. Analyze the provided materials data and provide:
+    const systemPrompt = `${SYSTEM_PROMPT_BASE} Analyze the materials data and provide:
 1. Cost optimization recommendations (alternative materials, bulk purchasing)
 2. Sustainable/green material alternatives
 3. Material waste reduction strategies
@@ -210,7 +240,7 @@ router.post('/optimize-materials', auth, async (req, res) => {
 Provide specific product suggestions and estimated savings.`;
 
     const result = await callOpenRouter(systemPrompt, req.body);
-    await saveAnalysis('optimize-materials', req.body, result, process.env.OPENROUTER_MODEL);
+    await saveAnalysis('optimize-materials', req.body, result, req.user?.id, req.body.project_id, null);
     res.json({ analysis: result });
   } catch (err) {
     console.error('AI optimize-materials error:', err.response?.data || err.message);
