@@ -19,6 +19,7 @@ const navItems = [
   { path: '/ai-analysis', icon: '\ud83e\udd16', label: 'AI Analysis' },
   { path: '/ai-lab', icon: '\ud83e\uddea', label: 'AI Lab' },
   { path: '/reports', icon: '\ud83d\udccb', label: 'Reports' },
+  { path: '/bid-bond-readiness', icon: '\ud83d\udccb', label: 'Bid Bond Readiness' },
 ,
   // // === Batch 02 Gaps & Frontend Mounts ===
   { path: '/cf/vision-based-site-inspection', icon: '+', label: 'CF: VisionBasedSiteInspectio' },

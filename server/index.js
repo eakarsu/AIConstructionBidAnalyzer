@@ -23,6 +23,7 @@ app.use('/api/cost-estimates', require('./routes/costEstimates'));
 app.use('/api/compliance', require('./routes/compliance'));
 app.use('/api/bid-comparisons', require('./routes/bidComparisons'));
 app.use('/api/timelines', require('./routes/timelines'));
+app.use('/api/bid-bond-readiness', require('./routes/bidBondReadiness'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/ai', require('./routes/aiNew'));
 

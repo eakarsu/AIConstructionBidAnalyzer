@@ -19,6 +19,7 @@ import TimelinesPage from './pages/TimelinesPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
 import AILabPage from './pages/AILabPage';
 import ReportsPage from './pages/ReportsPage';
+import BidBondReadinessPage from './pages/BidBondReadinessPage';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import CfVisionBasedSiteInspection from './pages/CfVisionBasedSiteInspection';
@@ -35,6 +36,11 @@ import GapNoRfqAutomationOrVendorOutreachWorkflow from './pages/GapNoRfqAutomati
 import GapNoEquipmentRentalMarketplaceOrAvailabilityTracker from './pages/GapNoEquipmentRentalMarketplaceOrAvailabilityTracker';
 import GapNoCalendarIntegration from './pages/GapNoCalendarIntegration';
 import GapLimitedMobileFieldAppSurfaces from './pages/GapLimitedMobileFieldAppSurfaces';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -62,6 +68,10 @@ function App() {
   if (isLoginPage) {
     return (
       <Routes>
+        <Route path="/insights/timeline" element={<ProtectedRoute><TimelineView /></ProtectedRoute>} />
+        <Route path="/codex/custom-viz" element={<ProtectedRoute><CodexCustomVizFeature /></ProtectedRoute>} />
+        <Route path="/codex/operations" element={<ProtectedRoute><CodexOperationsFeature /></ProtectedRoute>} />
+
         <Route path="/login" element={<LoginPage />} />
       
         {/* // === Batch 02 Gaps & Frontend Mounts === */}
@@ -103,6 +113,7 @@ function App() {
         <Route path="/ai-analysis" element={<ProtectedRoute><AIAnalysisPage /></ProtectedRoute>} />
         <Route path="/ai-lab" element={<ProtectedRoute><AILabPage /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+        <Route path="/bid-bond-readiness" element={<ProtectedRoute><BidBondReadinessPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>

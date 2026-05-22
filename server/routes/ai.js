@@ -5,7 +5,7 @@ const pool = require('../db');
 const auth = require('../middleware/auth');
 const { aiRateLimiter } = require('../middleware/rateLimiter');
 
-const OPENROUTER_MODEL = 'anthropic/claude-3-5-sonnet-20241022';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022';
 const SYSTEM_PROMPT_BASE =
   'You are an expert construction estimator and project manager with deep knowledge of commercial construction costs, contract law, and project risk management.';
 
@@ -31,28 +31,16 @@ const callOpenRouter = async (systemPrompt, userData) => {
 const saveAnalysis = async (analysisType, inputData, resultText, userId, projectId, bidId) => {
   const result = await pool.query(
     `INSERT INTO ai_analyses
-       (analysis_type, project_id, bid_id, input_data_json, result_json, model_used, user_id, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+       (feature, input_data, output_data, model_used, created_at)
+     VALUES ($1, $2, $3, $4, NOW())
      RETURNING id`,
     [
       analysisType,
-      projectId || null,
-      bidId || null,
       JSON.stringify(inputData),
-      JSON.stringify({ result: resultText }),
+      JSON.stringify({ result: resultText, project_id: projectId || null, bid_id: bidId || null, user_id: userId || null }),
       OPENROUTER_MODEL,
-      userId || null,
     ]
   );
-
-  // Update project.last_analysis_at if a project_id was provided
-  if (projectId) {
-    await pool.query(
-      'UPDATE projects SET last_analysis_at = NOW() WHERE id = $1',
-      [projectId]
-    ).catch(() => {}); // non-fatal
-  }
-
   return result.rows[0].id;
 };
 
