@@ -20,6 +20,8 @@ import AIAnalysisPage from './pages/AIAnalysisPage';
 import AILabPage from './pages/AILabPage';
 import ReportsPage from './pages/ReportsPage';
 import BidBondReadinessPage from './pages/BidBondReadinessPage';
+import MissingFeaturesHub from './pages/MissingFeaturesHub';
+import ProductionReadiness from './pages/ProductionReadiness';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import CfVisionBasedSiteInspection from './pages/CfVisionBasedSiteInspection';
@@ -114,6 +116,8 @@ function App() {
         <Route path="/ai-lab" element={<ProtectedRoute><AILabPage /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
         <Route path="/bid-bond-readiness" element={<ProtectedRoute><BidBondReadinessPage /></ProtectedRoute>} />
+        <Route path="/missing-features" element={<ProtectedRoute><MissingFeaturesHub /></ProtectedRoute>} />
+        <Route path="/production-readiness" element={<ProtectedRoute><ProductionReadiness /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>
