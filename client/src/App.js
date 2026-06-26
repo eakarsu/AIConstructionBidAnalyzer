@@ -24,6 +24,7 @@ import MissingFeaturesHub from './pages/MissingFeaturesHub';
 import ProductionReadiness from './pages/ProductionReadiness';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
+import AIWorkbenchPage from './pages/AIWorkbenchPage';
 import CfVisionBasedSiteInspection from './pages/CfVisionBasedSiteInspection';
 import CfSupplierIntelligence from './pages/CfSupplierIntelligence';
 import CfAgenticContractNegotiation from './pages/CfAgenticContractNegotiation';
@@ -70,27 +71,7 @@ function App() {
   if (isLoginPage) {
     return (
       <Routes>
-        <Route path="/insights/timeline" element={<ProtectedRoute><TimelineView /></ProtectedRoute>} />
-        <Route path="/codex/custom-viz" element={<ProtectedRoute><CodexCustomVizFeature /></ProtectedRoute>} />
-        <Route path="/codex/operations" element={<ProtectedRoute><CodexOperationsFeature /></ProtectedRoute>} />
-
         <Route path="/login" element={<LoginPage />} />
-      
-        {/* // === Batch 02 Gaps & Frontend Mounts === */}
-        <Route path="/cf/vision-based-site-inspection" element={<CfVisionBasedSiteInspection />} />
-        <Route path="/cf/supplier-intelligence" element={<CfSupplierIntelligence />} />
-        <Route path="/cf/agentic-contract-negotiation" element={<CfAgenticContractNegotiation />} />
-        <Route path="/cf/real-time-cost-tracking-with-variance-alerts" element={<CfRealTimeCostTrackingWithVarianceAlerts />} />
-        <Route path="/cf/liability-insurance-recommendation-engine" element={<CfLiabilityInsuranceRecommendationEngine />} />
-        <Route path="/cf/subcontractor-performance-scoring" element={<CfSubcontractorPerformanceScoring />} />
-        <Route path="/gap/no-photo-site-vision-ai-for-progress-or-safety-inspection" element={<GapNoPhotoSiteVisionAiForProgressOrSafetyInspection />} />
-        <Route path="/gap/contractors-subcontractors-lack-ai-scoring-or-performance-pr" element={<GapContractorsSubcontractorsLackAiScoringOrPerformancePr />} />
-        <Route path="/gap/no-agentic-bid-negotiation-flow" element={<GapNoAgenticBidNegotiationFlow />} />
-        <Route path="/gap/no-supplier-directory-vendor-management-portal" element={<GapNoSupplierDirectoryVendorManagementPortal />} />
-        <Route path="/gap/no-rfq-automation-or-vendor-outreach-workflow" element={<GapNoRfqAutomationOrVendorOutreachWorkflow />} />
-        <Route path="/gap/no-equipment-rental-marketplace-or-availability-tracker" element={<GapNoEquipmentRentalMarketplaceOrAvailabilityTracker />} />
-        <Route path="/gap/no-calendar-integration" element={<GapNoCalendarIntegration />} />
-        <Route path="/gap/limited-mobile-field-app-surfaces" element={<GapLimitedMobileFieldAppSurfaces />} />
       </Routes>
     );
   }
@@ -118,6 +99,31 @@ function App() {
         <Route path="/bid-bond-readiness" element={<ProtectedRoute><BidBondReadinessPage /></ProtectedRoute>} />
         <Route path="/missing-features" element={<ProtectedRoute><MissingFeaturesHub /></ProtectedRoute>} />
         <Route path="/production-readiness" element={<ProtectedRoute><ProductionReadiness /></ProtectedRoute>} />
+
+        {/* Unified AI Workbench (replaces the 14 CF/Gap shells) */}
+        <Route path="/ai-workbench" element={<ProtectedRoute><AIWorkbenchPage /></ProtectedRoute>} />
+
+        {/* Insights / Codex */}
+        <Route path="/insights/timeline" element={<ProtectedRoute><TimelineView /></ProtectedRoute>} />
+        <Route path="/codex/custom-viz" element={<ProtectedRoute><CodexCustomVizFeature /></ProtectedRoute>} />
+        <Route path="/codex/operations" element={<ProtectedRoute><CodexOperationsFeature /></ProtectedRoute>} />
+
+        {/* CF / Gap feature pages */}
+        <Route path="/cf/vision-based-site-inspection" element={<ProtectedRoute><CfVisionBasedSiteInspection /></ProtectedRoute>} />
+        <Route path="/cf/supplier-intelligence" element={<ProtectedRoute><CfSupplierIntelligence /></ProtectedRoute>} />
+        <Route path="/cf/agentic-contract-negotiation" element={<ProtectedRoute><CfAgenticContractNegotiation /></ProtectedRoute>} />
+        <Route path="/cf/real-time-cost-tracking-with-variance-alerts" element={<ProtectedRoute><CfRealTimeCostTrackingWithVarianceAlerts /></ProtectedRoute>} />
+        <Route path="/cf/liability-insurance-recommendation-engine" element={<ProtectedRoute><CfLiabilityInsuranceRecommendationEngine /></ProtectedRoute>} />
+        <Route path="/cf/subcontractor-performance-scoring" element={<ProtectedRoute><CfSubcontractorPerformanceScoring /></ProtectedRoute>} />
+        <Route path="/gap/no-photo-site-vision-ai-for-progress-or-safety-inspection" element={<ProtectedRoute><GapNoPhotoSiteVisionAiForProgressOrSafetyInspection /></ProtectedRoute>} />
+        <Route path="/gap/contractors-subcontractors-lack-ai-scoring-or-performance-pr" element={<ProtectedRoute><GapContractorsSubcontractorsLackAiScoringOrPerformancePr /></ProtectedRoute>} />
+        <Route path="/gap/no-agentic-bid-negotiation-flow" element={<ProtectedRoute><GapNoAgenticBidNegotiationFlow /></ProtectedRoute>} />
+        <Route path="/gap/no-supplier-directory-vendor-management-portal" element={<ProtectedRoute><GapNoSupplierDirectoryVendorManagementPortal /></ProtectedRoute>} />
+        <Route path="/gap/no-rfq-automation-or-vendor-outreach-workflow" element={<ProtectedRoute><GapNoRfqAutomationOrVendorOutreachWorkflow /></ProtectedRoute>} />
+        <Route path="/gap/no-equipment-rental-marketplace-or-availability-tracker" element={<ProtectedRoute><GapNoEquipmentRentalMarketplaceOrAvailabilityTracker /></ProtectedRoute>} />
+        <Route path="/gap/no-calendar-integration" element={<ProtectedRoute><GapNoCalendarIntegration /></ProtectedRoute>} />
+        <Route path="/gap/limited-mobile-field-app-surfaces" element={<ProtectedRoute><GapLimitedMobileFieldAppSurfaces /></ProtectedRoute>} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>
