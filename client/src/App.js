@@ -22,6 +22,8 @@ import ReportsPage from './pages/ReportsPage';
 import BidBondReadinessPage from './pages/BidBondReadinessPage';
 import MissingFeaturesHub from './pages/MissingFeaturesHub';
 import ProductionReadiness from './pages/ProductionReadiness';
+import WorkflowPage from './pages/WorkflowPage';
+import ExpansionFeaturePage from './pages/ExpansionFeaturePage';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import AIWorkbenchPage from './pages/AIWorkbenchPage';
@@ -45,9 +47,28 @@ import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 import TimelineView from './pages/TimelineView';
 
+const isValidStoredToken = (token) => {
+  if (!token || token === 'null' || token === 'undefined') return false;
+
+  try {
+    const [, payload] = token.split('.');
+    if (!payload) return false;
+
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = JSON.parse(window.atob(normalizedPayload));
+
+    if (decoded.exp && decoded.exp * 1000 < Date.now()) return false;
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  if (!token) {
+  if (!isValidStoredToken(token)) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -97,6 +118,18 @@ function App() {
         <Route path="/ai-lab" element={<ProtectedRoute><AILabPage /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
         <Route path="/bid-bond-readiness" element={<ProtectedRoute><BidBondReadinessPage /></ProtectedRoute>} />
+        <Route path="/tasks" element={<ProtectedRoute><WorkflowPage type="tasks" /></ProtectedRoute>} />
+        <Route path="/approvals" element={<ProtectedRoute><WorkflowPage type="approvals" /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><WorkflowPage type="notifications" /></ProtectedRoute>} />
+        <Route path="/audit-trail" element={<ProtectedRoute><WorkflowPage type="audit" /></ProtectedRoute>} />
+        <Route path="/plan-spec-upload" element={<ProtectedRoute><ExpansionFeaturePage feature="plan-spec-upload" /></ProtectedRoute>} />
+        <Route path="/bid-risk-analysis" element={<ProtectedRoute><ExpansionFeaturePage feature="bid-risk-analysis" /></ProtectedRoute>} />
+        <Route path="/cost-estimate-review" element={<ProtectedRoute><ExpansionFeaturePage feature="cost-estimate-review" /></ProtectedRoute>} />
+        <Route path="/permit-checklists" element={<ProtectedRoute><ExpansionFeaturePage feature="permit-checklists" /></ProtectedRoute>} />
+        <Route path="/safety-plans" element={<ProtectedRoute><ExpansionFeaturePage feature="safety-plans" /></ProtectedRoute>} />
+        <Route path="/subcontractor-scoring" element={<ProtectedRoute><ExpansionFeaturePage feature="subcontractor-scoring" /></ProtectedRoute>} />
+        <Route path="/change-order-impacts" element={<ProtectedRoute><ExpansionFeaturePage feature="change-order-impacts" /></ProtectedRoute>} />
+        <Route path="/project-risk-dashboard" element={<ProtectedRoute><ExpansionFeaturePage feature="project-risk-dashboard" /></ProtectedRoute>} />
         <Route path="/missing-features" element={<ProtectedRoute><MissingFeaturesHub /></ProtectedRoute>} />
         <Route path="/production-readiness" element={<ProtectedRoute><ProductionReadiness /></ProtectedRoute>} />
 

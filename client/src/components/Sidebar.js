@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
+  { section: 'Core' },
   { path: '/', icon: '\ud83d\udcca', label: 'Dashboard' },
   { path: '/projects', icon: '\ud83d\udccb', label: 'Projects' },
   { path: '/bids', icon: '\ud83d\udcb0', label: 'Bids' },
@@ -16,6 +17,21 @@ const navItems = [
   { path: '/compliance', icon: '\u2705', label: 'Compliance' },
   { path: '/bid-comparisons', icon: '\ud83d\udcc8', label: 'Bid Comparisons' },
   { path: '/timelines', icon: '\ud83d\udcc5', label: 'Timelines' },
+  { section: 'Operations' },
+  { path: '/tasks', icon: '\ud83d\udccc', label: 'Tasks' },
+  { path: '/approvals', icon: '\u2705', label: 'Approvals' },
+  { path: '/notifications', icon: '\ud83d\udd14', label: 'Notifications' },
+  { path: '/audit-trail', icon: '\ud83d\udcc8', label: 'Audit Trail' },
+  { section: 'Expansion Plan' },
+  { path: '/plan-spec-upload', icon: '\ud83d\udcc4', label: 'Documents: Extraction' },
+  { path: '/bid-risk-analysis', icon: '\u26a0\ufe0f', label: 'Bids: Risk Review' },
+  { path: '/cost-estimate-review', icon: '\ud83d\udcb5', label: 'Costs: Estimate Review' },
+  { path: '/permit-checklists', icon: '\ud83c\udfdb\ufe0f', label: 'Compliance: Permits' },
+  { path: '/safety-plans', icon: '\ud83e\uddba', label: 'Compliance: Safety' },
+  { path: '/subcontractor-scoring', icon: '\ud83d\udee0\ufe0f', label: 'Subs: Scoring' },
+  { path: '/change-order-impacts', icon: '\ud83d\udcdd', label: 'Change Orders: Impact' },
+  { path: '/project-risk-dashboard', icon: '\ud83d\udcca', label: 'Projects: Risk Metrics' },
+  { section: 'Reports & AI' },
   { path: '/reports', icon: '\ud83d\udccb', label: 'Reports' },
   { path: '/bid-bond-readiness', icon: '\ud83d\udccb', label: 'Bid Bond Readiness' },
   { path: '/ai-workbench', icon: '🤖', label: 'AI Workbench' }
@@ -47,14 +63,18 @@ const Sidebar = () => {
 
       <nav className="sidebar-nav">
         {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={location.pathname === item.path ? 'active' : ''}
-          >
-            <span className="nav-icon">{item.icon}</span>
-            <span>{item.label}</span>
-          </Link>
+          item.section ? (
+            <div className="nav-section" key={item.section}>{item.section}</div>
+          ) : (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={location.pathname === item.path ? 'active' : ''}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          )
         ))}
       </nav>
 

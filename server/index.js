@@ -7,6 +7,7 @@ const app = express();
 // Middleware
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
+app.use(require('./middleware/auditLogger'));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -24,6 +25,11 @@ app.use('/api/compliance', require('./routes/compliance'));
 app.use('/api/bid-comparisons', require('./routes/bidComparisons'));
 app.use('/api/timelines', require('./routes/timelines'));
 app.use('/api/bid-bond-readiness', require('./routes/bidBondReadiness'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/approvals', require('./routes/approvals'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/audit-logs', require('./routes/auditLogs'));
+app.use('/api/feature-expansion', require('./routes/featureExpansion'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/ai', require('./routes/aiNew'));
 

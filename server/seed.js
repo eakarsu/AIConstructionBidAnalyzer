@@ -6,6 +6,29 @@ const seed = async () => {
     console.log('Dropping existing tables...');
     await pool.query(`
       DROP TABLE IF EXISTS ai_analyses CASCADE;
+      DROP VIEW IF EXISTS bid_readiness_metrics CASCADE;
+      DROP VIEW IF EXISTS project_risk_metrics CASCADE;
+      DROP TABLE IF EXISTS change_order_approvals CASCADE;
+      DROP TABLE IF EXISTS change_order_impacts CASCADE;
+      DROP TABLE IF EXISTS subcontractor_evaluations CASCADE;
+      DROP TABLE IF EXISTS subcontractor_scores CASCADE;
+      DROP TABLE IF EXISTS safety_inspections CASCADE;
+      DROP TABLE IF EXISTS safety_hazards CASCADE;
+      DROP TABLE IF EXISTS safety_plans CASCADE;
+      DROP TABLE IF EXISTS permit_status_events CASCADE;
+      DROP TABLE IF EXISTS permit_requirements CASCADE;
+      DROP TABLE IF EXISTS permit_checklists CASCADE;
+      DROP TABLE IF EXISTS estimate_variances CASCADE;
+      DROP TABLE IF EXISTS estimate_reviews CASCADE;
+      DROP TABLE IF EXISTS bid_risk_findings CASCADE;
+      DROP TABLE IF EXISTS bid_risk_reviews CASCADE;
+      DROP TABLE IF EXISTS document_extractions CASCADE;
+      DROP TABLE IF EXISTS spec_documents CASCADE;
+      DROP TABLE IF EXISTS plan_uploads CASCADE;
+      DROP TABLE IF EXISTS audit_logs CASCADE;
+      DROP TABLE IF EXISTS notifications CASCADE;
+      DROP TABLE IF EXISTS approvals CASCADE;
+      DROP TABLE IF EXISTS tasks CASCADE;
       DROP TABLE IF EXISTS timelines CASCADE;
       DROP TABLE IF EXISTS bid_comparisons CASCADE;
       DROP TABLE IF EXISTS compliance_checks CASCADE;
@@ -209,6 +232,252 @@ const seed = async () => {
         input_data JSONB,
         output_data JSONB,
         model_used VARCHAR(100),
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE tasks (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+        owner VARCHAR(255),
+        due_date DATE,
+        priority VARCHAR(50) DEFAULT 'medium',
+        status VARCHAR(50) DEFAULT 'open',
+        category VARCHAR(100),
+        description TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE approvals (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+        approval_type VARCHAR(100) NOT NULL,
+        requester VARCHAR(255),
+        approver VARCHAR(255),
+        due_date DATE,
+        status VARCHAR(50) DEFAULT 'pending',
+        amount DECIMAL(15,2),
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE notifications (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+        severity VARCHAR(50) DEFAULT 'info',
+        category VARCHAR(100),
+        recipient VARCHAR(255),
+        read_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE audit_logs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER,
+        user_email VARCHAR(255),
+        action VARCHAR(50) NOT NULL,
+        entity_type VARCHAR(100) NOT NULL,
+        entity_id VARCHAR(100),
+        metadata JSONB,
+        ip_address VARCHAR(100),
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE plan_uploads (
+        id SERIAL PRIMARY KEY,
+        project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+        upload_name VARCHAR(255) NOT NULL,
+        document_type VARCHAR(100),
+        file_url VARCHAR(500),
+        uploaded_by VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'uploaded',
+        extracted_summary TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE spec_documents (
+        id SERIAL PRIMARY KEY,
+        plan_upload_id INTEGER REFERENCES plan_uploads(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        spec_section VARCHAR(100),
+        trade VARCHAR(100),
+        revision VARCHAR(50),
+        status VARCHAR(50) DEFAULT 'indexed',
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE document_extractions (
+        id SERIAL PRIMARY KEY,
+        plan_upload_id INTEGER REFERENCES plan_uploads(id) ON DELETE CASCADE,
+        extraction_type VARCHAR(100),
+        extracted_value TEXT,
+        confidence DECIMAL(5,2),
+        source_page INTEGER,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE bid_risk_reviews (
+        id SERIAL PRIMARY KEY,
+        bid_id INTEGER REFERENCES bids(id) ON DELETE CASCADE,
+        reviewer VARCHAR(255),
+        overall_score INTEGER,
+        status VARCHAR(50) DEFAULT 'draft',
+        summary TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE bid_risk_findings (
+        id SERIAL PRIMARY KEY,
+        review_id INTEGER REFERENCES bid_risk_reviews(id) ON DELETE CASCADE,
+        finding_type VARCHAR(100),
+        severity VARCHAR(50),
+        scope_area VARCHAR(100),
+        description TEXT,
+        recommendation TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE estimate_reviews (
+        id SERIAL PRIMARY KEY,
+        cost_estimate_id INTEGER REFERENCES cost_estimates(id) ON DELETE CASCADE,
+        reviewer VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'open',
+        variance_score INTEGER,
+        summary TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE estimate_variances (
+        id SERIAL PRIMARY KEY,
+        review_id INTEGER REFERENCES estimate_reviews(id) ON DELETE CASCADE,
+        category VARCHAR(100),
+        estimated_amount DECIMAL(15,2),
+        benchmark_amount DECIMAL(15,2),
+        variance_amount DECIMAL(15,2),
+        severity VARCHAR(50),
+        recommendation TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE permit_checklists (
+        id SERIAL PRIMARY KEY,
+        project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+        jurisdiction VARCHAR(255),
+        trade VARCHAR(100),
+        phase VARCHAR(100),
+        status VARCHAR(50) DEFAULT 'open',
+        due_date DATE,
+        owner VARCHAR(255),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE permit_requirements (
+        id SERIAL PRIMARY KEY,
+        checklist_id INTEGER REFERENCES permit_checklists(id) ON DELETE CASCADE,
+        requirement VARCHAR(255),
+        authority VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE permit_status_events (
+        id SERIAL PRIMARY KEY,
+        checklist_id INTEGER REFERENCES permit_checklists(id) ON DELETE CASCADE,
+        event_type VARCHAR(100),
+        status VARCHAR(50),
+        event_date DATE,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE safety_plans (
+        id SERIAL PRIMARY KEY,
+        project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
+        plan_name VARCHAR(255) NOT NULL,
+        generated_by VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'draft',
+        summary TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE safety_hazards (
+        id SERIAL PRIMARY KEY,
+        safety_plan_id INTEGER REFERENCES safety_plans(id) ON DELETE CASCADE,
+        hazard VARCHAR(255),
+        severity VARCHAR(50),
+        control TEXT,
+        toolbox_talk TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE safety_inspections (
+        id SERIAL PRIMARY KEY,
+        safety_plan_id INTEGER REFERENCES safety_plans(id) ON DELETE CASCADE,
+        inspection_date DATE,
+        inspector VARCHAR(255),
+        status VARCHAR(50),
+        findings TEXT,
+        corrective_action TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE subcontractor_scores (
+        id SERIAL PRIMARY KEY,
+        subcontractor_id INTEGER REFERENCES subcontractors(id) ON DELETE CASCADE,
+        bid_id INTEGER REFERENCES bids(id) ON DELETE SET NULL,
+        overall_score INTEGER,
+        availability_score INTEGER,
+        insurance_score INTEGER,
+        performance_score INTEGER,
+        safety_score INTEGER,
+        scope_fit_score INTEGER,
+        status VARCHAR(50) DEFAULT 'scored',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE subcontractor_evaluations (
+        id SERIAL PRIMARY KEY,
+        score_id INTEGER REFERENCES subcontractor_scores(id) ON DELETE CASCADE,
+        evaluator VARCHAR(255),
+        evaluation_area VARCHAR(100),
+        rating INTEGER,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE change_order_impacts (
+        id SERIAL PRIMARY KEY,
+        change_order_id INTEGER REFERENCES change_orders(id) ON DELETE CASCADE,
+        cost_impact DECIMAL(15,2),
+        schedule_impact_days INTEGER,
+        source_document VARCHAR(255),
+        risk_level VARCHAR(50),
+        status VARCHAR(50) DEFAULT 'draft',
+        owner VARCHAR(255),
+        summary TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE change_order_approvals (
+        id SERIAL PRIMARY KEY,
+        impact_id INTEGER REFERENCES change_order_impacts(id) ON DELETE CASCADE,
+        approver VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        decision_date DATE,
+        notes TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
@@ -530,6 +799,329 @@ const seed = async () => {
     `);
     console.log('Timelines seeded.');
 
+    // --- TASKS ---
+    await pool.query(`
+      INSERT INTO tasks (title, project_id, owner, due_date, priority, status, category, description) VALUES
+      ('Finalize structural steel addendum', 1, 'Mike Chen', '2025-07-15', 'critical', 'in_progress', 'Bid Addendum', 'Issue final steel clarifications to all shortlisted bidders before pricing cutoff.'),
+      ('Collect subcontractor W-9 and insurance certificates', 1, 'Sarah Johnson', '2025-07-18', 'high', 'open', 'Compliance', 'Confirm current COI, W-9, and license documents for preferred subcontractors.'),
+      ('Review medical gas scope exclusions', 2, 'Emily Davis', '2025-07-22', 'critical', 'blocked', 'Scope Review', 'Compare DPR and Brasfield medical gas allowances against owner requirements.'),
+      ('Validate unit mix revision pricing', 3, 'David Brown', '2025-07-19', 'medium', 'open', 'Cost Review', 'Confirm savings from revised studio/two-bedroom split and update comparison worksheet.'),
+      ('Prepare traffic control add alternate', 4, 'James Wilson', '2025-07-25', 'high', 'in_progress', 'Procurement', 'Draft add alternate language for temporary bypass road and lane closure sequencing.'),
+      ('School board approval package', 5, 'Patricia Thomas', '2025-07-28', 'high', 'open', 'Approval Package', 'Compile budget, schedule, alternates, and compliance summary for board meeting.'),
+      ('Retail tenant allowance reconciliation', 6, 'Jennifer Martinez', '2025-07-21', 'medium', 'in_progress', 'Finance', 'Reconcile tenant improvement allowances against lease commitments and bid assumptions.'),
+      ('Water treatment equipment long-lead check', 7, 'Michelle Lee', '2025-07-30', 'critical', 'open', 'Long Lead', 'Confirm lead times for UV disinfection and membrane filtration equipment.'),
+      ('Memory care wing code review', 8, 'Kevin Harris', '2025-08-02', 'high', 'open', 'Compliance', 'Validate egress, fire protection, and nurse call requirements for expanded wing.'),
+      ('Airport stakeholder coordination log', 9, 'Chris Anderson', '2025-08-05', 'medium', 'open', 'Coordination', 'Set up recurring stakeholder log for airport operations, TSA, and airline representatives.'),
+      ('HVAC phasing checklist', 10, 'Sarah Johnson', '2025-07-17', 'high', 'completed', 'Field Planning', 'Confirm temporary classroom ventilation plan during west wing renovation.'),
+      ('Utility interconnect kickoff', 11, 'Robert Taylor', '2025-08-08', 'critical', 'open', 'Utility', 'Schedule meeting with utility provider for dual-feed power requirements.'),
+      ('Hotel financing contingency review', 12, 'Amanda White', '2025-08-12', 'medium', 'open', 'Finance', 'Review lender contingency requirements before final GMP negotiation.'),
+      ('Aquatic center health department comments', 14, 'Lisa Rodriguez', '2025-07-26', 'medium', 'blocked', 'Permitting', 'Waiting for health department comments on pool depth and diving configuration.'),
+      ('Community center value engineering memo', 14, 'Daniel Jackson', '2025-08-01', 'low', 'open', 'Value Engineering', 'Summarize pool equipment and locker room finish alternates.')
+    `);
+    console.log('Tasks seeded.');
+
+    // --- APPROVALS ---
+    await pool.query(`
+      INSERT INTO approvals (title, project_id, approval_type, requester, approver, due_date, status, amount, notes) VALUES
+      ('Award recommendation - Downtown Office Tower', 1, 'Bid Award', 'Sarah Johnson', 'Executive Committee', '2025-07-20', 'pending', 82500000, 'Recommend Turner based on complete scope and lower coordination risk.'),
+      ('Change order approval - Rooftop Terrace', 1, 'Change Order', 'Building Owner', 'Project Executive', '2025-07-24', 'pending', 1200000, 'Amenity request requires schedule and waterproofing review.'),
+      ('Healthcare equipment allowance release', 2, 'Budget Release', 'Hospital Administration', 'Finance Director', '2025-07-29', 'needs_changes', 15000000, 'Approver requested split by medical department.'),
+      ('Residential unit mix revision', 3, 'Scope Change', 'Developer', 'Design Review Board', '2025-07-18', 'approved', -200000, 'Approved after updated market demand memo.'),
+      ('Bridge deck widening addendum', 4, 'Design Change', 'City Transportation Dept', 'DOT Program Manager', '2025-08-04', 'pending', 1500000, 'Requires confirmation of future bike lane funding.'),
+      ('Elementary school GMP package', 5, 'GMP Approval', 'Estimating Team', 'School Board', '2025-08-10', 'pending', 28000000, 'Board packet prepared for August session.'),
+      ('Retail EV charging change order', 6, 'Change Order', 'Building Owner', 'Asset Manager', '2025-07-22', 'approved', 225000, 'Approved due to local ordinance and tenant demand.'),
+      ('Water plant UV system addition', 7, 'Change Order', 'Environmental Engineer', 'Public Works Director', '2025-07-31', 'approved', 680000, 'EPA guidance supports additional treatment stage.'),
+      ('Memory care wing expansion request', 8, 'Scope Change', 'Facility Operator', 'Owner Representative', '2025-08-09', 'pending', 1800000, 'Review resident count, staffing, and licensing impact.'),
+      ('Airport terminal preliminary budget', 9, 'Budget Approval', 'Aviation Team', 'Airport Authority', '2025-08-15', 'pending', 175000000, 'Initial authorization for terminal expansion procurement.'),
+      ('High school fiber backbone', 10, 'Technology Change', 'School District IT', 'Program Director', '2025-07-27', 'approved', 165000, 'Approved as technology modernization allowance.'),
+      ('Data center utility deposit', 11, 'Payment Approval', 'Robert Taylor', 'CFO', '2025-08-11', 'pending', 950000, 'Utility requires deposit to reserve redundant service capacity.'),
+      ('Hotel convention center design release', 12, 'Design Approval', 'Amanda White', 'Development Partner', '2025-08-18', 'pending', 110000000, 'Release required before final lender package.'),
+      ('Aquatic center depth modification', 14, 'Design Change', 'Parks & Recreation Dept', 'City Council', '2025-08-03', 'needs_changes', 95000, 'Council requested safety and operational staffing memo.'),
+      ('Safety plan acceptance - Office Tower', 1, 'Safety Approval', 'Amanda White', 'Safety Director', '2025-07-16', 'approved', NULL, 'Site-specific safety plan accepted with weekly audit requirement.')
+    `);
+    console.log('Approvals seeded.');
+
+    // --- NOTIFICATIONS ---
+    await pool.query(`
+      INSERT INTO notifications (title, message, project_id, severity, category, recipient, read_at) VALUES
+      ('Bid award approval due', 'Downtown Office Tower award recommendation is due in 3 days.', 1, 'warning', 'Approval', 'Sarah Johnson', NULL),
+      ('Critical task blocked', 'Medical gas scope review is blocked by missing owner equipment schedule.', 2, 'critical', 'Task', 'Emily Davis', NULL),
+      ('Change order approved', 'Retail EV charging stations change order was approved.', 6, 'success', 'Change Order', 'Jennifer Martinez', NOW()),
+      ('Compliance review pending', 'OSHPD review remains in progress for Riverside Medical Center.', 2, 'warning', 'Compliance', 'Amanda White', NULL),
+      ('Long-lead equipment alert', 'Water treatment UV equipment lead time must be confirmed this week.', 7, 'critical', 'Procurement', 'Michelle Lee', NULL),
+      ('Task completed', 'HVAC phasing checklist was completed for Oak Valley High School.', 10, 'success', 'Task', 'Sarah Johnson', NOW()),
+      ('Approval needs changes', 'Healthcare equipment allowance release requires department-level breakdown.', 2, 'warning', 'Approval', 'Finance Director', NULL),
+      ('New bid comparison ready', 'Bridge replacement final comparison is ready for DOT review.', 4, 'info', 'Bid Comparison', 'James Wilson', NULL),
+      ('Permit comment expected', 'Aquatic center health department comments are expected before August 3.', 14, 'info', 'Permitting', 'Lisa Rodriguez', NULL),
+      ('Safety risk reminder', 'High-rise fall protection controls require daily field verification.', 1, 'critical', 'Safety', 'Amanda White', NULL),
+      ('Budget variance watch', 'Office tower MEP actuals are tracking $1.1M above estimate.', 1, 'warning', 'Finance', 'Mike Chen', NULL),
+      ('Utility coordination required', 'Data center utility interconnect kickoff must be scheduled.', 11, 'critical', 'Utility', 'Robert Taylor', NULL),
+      ('Owner review scheduled', 'Hotel convention center design release review is scheduled for next week.', 12, 'info', 'Owner Review', 'Amanda White', NOW()),
+      ('Document package updated', 'School board approval package received updated compliance attachment.', 5, 'info', 'Documents', 'Patricia Thomas', NULL),
+      ('Scope approval complete', 'Residential unit mix revision has been approved.', 3, 'success', 'Scope', 'David Brown', NOW())
+    `);
+    console.log('Notifications seeded.');
+
+    // --- AUDIT LOGS ---
+    await pool.query(`
+      INSERT INTO audit_logs (user_id, user_email, action, entity_type, entity_id, metadata, ip_address, created_at) VALUES
+      (1, 'admin@constructionbid.com', 'POST', 'projects', '1', '{"summary":"Created Downtown Office Tower project record"}', '127.0.0.1', NOW() - INTERVAL '15 days'),
+      (2, 'sarah@constructionbid.com', 'PUT', 'bids', '1', '{"summary":"Updated Turner Construction bid status to under review"}', '127.0.0.1', NOW() - INTERVAL '14 days'),
+      (3, 'mike@constructionbid.com', 'POST', 'cost-estimates', '1', '{"summary":"Added structural cost estimate"}', '127.0.0.1', NOW() - INTERVAL '13 days'),
+      (4, 'lisa@constructionbid.com', 'POST', 'risk-assessments', '3', '{"summary":"Logged healthcare regulatory risk"}', '127.0.0.1', NOW() - INTERVAL '12 days'),
+      (5, 'james@constructionbid.com', 'PUT', 'timelines', '2', '{"summary":"Updated foundation progress to 75 percent"}', '127.0.0.1', NOW() - INTERVAL '11 days'),
+      (6, 'emily@constructionbid.com', 'POST', 'approvals', '1', '{"summary":"Submitted bid award recommendation"}', '127.0.0.1', NOW() - INTERVAL '10 days'),
+      (7, 'robert@constructionbid.com', 'POST', 'tasks', '12', '{"summary":"Created utility interconnect kickoff task"}', '127.0.0.1', NOW() - INTERVAL '9 days'),
+      (8, 'amanda@constructionbid.com', 'POST', 'notifications', '10', '{"summary":"Created safety risk reminder notification"}', '127.0.0.1', NOW() - INTERVAL '8 days'),
+      (9, 'david@constructionbid.com', 'PUT', 'change-orders', '4', '{"summary":"Approved unit mix modification change order"}', '127.0.0.1', NOW() - INTERVAL '7 days'),
+      (10, 'jennifer@constructionbid.com', 'POST', 'documents', '16', '{"summary":"Uploaded change order log"}', '127.0.0.1', NOW() - INTERVAL '6 days'),
+      (11, 'chris@constructionbid.com', 'POST', 'bid-comparisons', '9', '{"summary":"Created airport terminal bid review"}', '127.0.0.1', NOW() - INTERVAL '5 days'),
+      (12, 'patricia@constructionbid.com', 'PUT', 'compliance', '8', '{"summary":"Marked education standards check as passed"}', '127.0.0.1', NOW() - INTERVAL '4 days'),
+      (13, 'daniel@constructionbid.com', 'POST', 'materials', '17', '{"summary":"Added fire-rated gypsum board material"}', '127.0.0.1', NOW() - INTERVAL '3 days'),
+      (14, 'michelle@constructionbid.com', 'POST', 'approvals', '8', '{"summary":"Submitted UV system change order approval"}', '127.0.0.1', NOW() - INTERVAL '2 days'),
+      (15, 'kevin@constructionbid.com', 'PUT', 'tasks', '9', '{"summary":"Updated memory care code review priority"}', '127.0.0.1', NOW() - INTERVAL '1 day')
+    `);
+    console.log('Audit logs seeded.');
+
+    // --- FEATURE EXPANSION PLAN MODULES ---
+    await pool.query(`
+      INSERT INTO plan_uploads (project_id, upload_name, document_type, file_url, uploaded_by, status, extracted_summary)
+      SELECT id, name || ' - Plan Set ' || LPAD(id::text, 2, '0'),
+             CASE WHEN id % 4 = 0 THEN 'Drawing Set' WHEN id % 4 = 1 THEN 'Spec Book' WHEN id % 4 = 2 THEN 'Addendum' ELSE 'Bid Instructions' END,
+             '/uploads/plans/project-' || id || '.pdf',
+             CASE WHEN id % 3 = 0 THEN 'Mike Chen' WHEN id % 3 = 1 THEN 'Sarah Johnson' ELSE 'Emily Davis' END,
+             CASE WHEN id % 5 = 0 THEN 'needs_review' ELSE 'extracted' END,
+             'Extracted scope notes, drawing references, bid alternates, and trade-specific requirements for ' || name || '.'
+      FROM projects
+      WHERE id <= 15;
+
+      INSERT INTO spec_documents (plan_upload_id, title, spec_section, trade, revision, status)
+      SELECT id,
+             'Section ' || (id + 3000) || ' - ' || CASE WHEN id % 5 = 0 THEN 'Concrete' WHEN id % 5 = 1 THEN 'MEP' WHEN id % 5 = 2 THEN 'Structural Steel' WHEN id % 5 = 3 THEN 'Sitework' ELSE 'Finishes' END,
+             (id + 3000)::text,
+             CASE WHEN id % 5 = 0 THEN 'Concrete' WHEN id % 5 = 1 THEN 'MEP' WHEN id % 5 = 2 THEN 'Steel' WHEN id % 5 = 3 THEN 'Civil' ELSE 'Architectural' END,
+             'Rev ' || CHR(65 + (id % 4)),
+             CASE WHEN id % 6 = 0 THEN 'conflict_detected' ELSE 'indexed' END
+      FROM plan_uploads;
+
+      INSERT INTO document_extractions (plan_upload_id, extraction_type, extracted_value, confidence, source_page)
+      SELECT id,
+             CASE WHEN id % 4 = 0 THEN 'allowance' WHEN id % 4 = 1 THEN 'alternate' WHEN id % 4 = 2 THEN 'exclusion' ELSE 'deadline' END,
+             CASE WHEN id % 4 = 0 THEN 'Allowance requires owner confirmation before GMP.'
+                  WHEN id % 4 = 1 THEN 'Add alternate for phasing and premium materials detected.'
+                  WHEN id % 4 = 2 THEN 'Potential missing scope around temporary utilities.'
+                  ELSE 'Bid response deadline and addendum acknowledgement extracted.' END,
+             84 + (id % 12),
+             3 + id
+      FROM plan_uploads;
+    `);
+    console.log('Plan/spec extraction data seeded.');
+
+    await pool.query(`
+      INSERT INTO bid_risk_reviews (bid_id, reviewer, overall_score, status, summary)
+      SELECT id,
+             CASE WHEN id % 3 = 0 THEN 'Sarah Johnson' WHEN id % 3 = 1 THEN 'Mike Chen' ELSE 'David Brown' END,
+             45 + ((id * 7) % 50),
+             CASE WHEN id % 5 = 0 THEN 'needs_review' WHEN id % 4 = 0 THEN 'approved' ELSE 'open' END,
+             'Structured review for missing scope, ambiguous bid terms, schedule exposure, and cost risk on bid #' || id || '.'
+      FROM bids
+      WHERE id <= 15;
+
+      INSERT INTO bid_risk_findings (review_id, finding_type, severity, scope_area, description, recommendation)
+      SELECT id,
+             CASE WHEN id % 4 = 0 THEN 'missing_scope' WHEN id % 4 = 1 THEN 'ambiguous_terms' WHEN id % 4 = 2 THEN 'schedule_risk' ELSE 'cost_exposure' END,
+             CASE WHEN id % 5 = 0 THEN 'critical' WHEN id % 3 = 0 THEN 'high' WHEN id % 3 = 1 THEN 'medium' ELSE 'low' END,
+             CASE WHEN id % 4 = 0 THEN 'MEP Coordination' WHEN id % 4 = 1 THEN 'General Conditions' WHEN id % 4 = 2 THEN 'Schedule' ELSE 'Allowances' END,
+             'Finding identifies a bid risk requiring estimator review before award recommendation.',
+             'Clarify scope in addendum, request bidder confirmation, and update comparison assumptions.'
+      FROM bid_risk_reviews;
+    `);
+    console.log('Bid risk review data seeded.');
+
+    await pool.query(`
+      INSERT INTO estimate_reviews (cost_estimate_id, reviewer, status, variance_score, summary)
+      SELECT id,
+             CASE WHEN id % 3 = 0 THEN 'Emily Davis' WHEN id % 3 = 1 THEN 'Mike Chen' ELSE 'Michelle Lee' END,
+             CASE WHEN id % 4 = 0 THEN 'variance_flagged' ELSE 'reviewed' END,
+             40 + ((id * 9) % 55),
+             'Reviewed estimate line items against historical unit costs, material quotes, labor assumptions, and contingency.'
+      FROM cost_estimates
+      WHERE id <= 15;
+
+      INSERT INTO estimate_variances (review_id, category, estimated_amount, benchmark_amount, variance_amount, severity, recommendation)
+      SELECT er.id,
+             ce.category,
+             ce.estimated_amount,
+             ROUND((ce.estimated_amount * (0.92 + ((er.id % 5) * 0.04)))::numeric, 2),
+             ROUND((ce.estimated_amount - (ce.estimated_amount * (0.92 + ((er.id % 5) * 0.04))))::numeric, 2),
+             CASE WHEN er.id % 5 = 0 THEN 'critical' WHEN er.id % 3 = 0 THEN 'high' ELSE 'medium' END,
+             'Validate quantity takeoff, supplier quote freshness, labor productivity factor, and contingency rationale.'
+      FROM estimate_reviews er
+      JOIN cost_estimates ce ON ce.id = er.cost_estimate_id;
+    `);
+    console.log('Estimate review data seeded.');
+
+    await pool.query(`
+      INSERT INTO permit_checklists (project_id, jurisdiction, trade, phase, status, due_date, owner)
+      SELECT id,
+             SPLIT_PART(location, ',', 1) || ' Building Department',
+             CASE WHEN id % 5 = 0 THEN 'Electrical' WHEN id % 5 = 1 THEN 'Structural' WHEN id % 5 = 2 THEN 'Civil' WHEN id % 5 = 3 THEN 'Fire/Life Safety' ELSE 'Plumbing' END,
+             CASE WHEN id % 3 = 0 THEN 'Foundation' WHEN id % 3 = 1 THEN 'Core/Shell' ELSE 'Closeout' END,
+             CASE WHEN id % 6 = 0 THEN 'blocked' WHEN id % 4 = 0 THEN 'submitted' ELSE 'open' END,
+             DATE '2025-08-01' + (id * INTERVAL '3 days'),
+             CASE WHEN id % 3 = 0 THEN 'Patricia Thomas' WHEN id % 3 = 1 THEN 'Lisa Rodriguez' ELSE 'James Wilson' END
+      FROM projects
+      WHERE id <= 15;
+
+      INSERT INTO permit_requirements (checklist_id, requirement, authority, status, notes)
+      SELECT id,
+             CASE WHEN id % 4 = 0 THEN 'Stamped trade drawings' WHEN id % 4 = 1 THEN 'Plan check fee receipt' WHEN id % 4 = 2 THEN 'Energy compliance worksheet' ELSE 'Fire marshal sign-off' END,
+             jurisdiction,
+             CASE WHEN id % 5 = 0 THEN 'blocked' WHEN id % 4 = 0 THEN 'complete' ELSE 'pending' END,
+             'Requirement generated from project type, jurisdiction, phase, and trade.'
+      FROM permit_checklists;
+
+      INSERT INTO permit_status_events (checklist_id, event_type, status, event_date, notes)
+      SELECT id,
+             CASE WHEN id % 3 = 0 THEN 'submission' WHEN id % 3 = 1 THEN 'comment_received' ELSE 'resubmission' END,
+             status,
+             DATE '2025-07-15' + (id * INTERVAL '2 days'),
+             'Permit status event recorded for dashboard tracking.'
+      FROM permit_checklists;
+    `);
+    console.log('Permit checklist data seeded.');
+
+    await pool.query(`
+      INSERT INTO safety_plans (project_id, plan_name, generated_by, status, summary)
+      SELECT id,
+             name || ' - Site Safety Plan',
+             CASE WHEN id % 3 = 0 THEN 'Amanda White' WHEN id % 3 = 1 THEN 'Kevin Harris' ELSE 'Robert Taylor' END,
+             CASE WHEN id % 5 = 0 THEN 'field_review' WHEN id % 4 = 0 THEN 'approved' ELSE 'draft' END,
+             'Project-specific safety plan covering hazards, toolbox talks, inspections, and corrective actions.'
+      FROM projects
+      WHERE id <= 15;
+
+      INSERT INTO safety_hazards (safety_plan_id, hazard, severity, control, toolbox_talk)
+      SELECT id,
+             CASE WHEN id % 5 = 0 THEN 'Falls from elevation' WHEN id % 5 = 1 THEN 'Crane and lift operations' WHEN id % 5 = 2 THEN 'Hot work' WHEN id % 5 = 3 THEN 'Confined space' ELSE 'Traffic control' END,
+             CASE WHEN id % 5 = 0 THEN 'critical' WHEN id % 3 = 0 THEN 'high' ELSE 'medium' END,
+             'Use pre-task planning, competent person inspection, barricades, PPE verification, and documented sign-off.',
+             'Daily talk covers hazard recognition, stop-work authority, emergency contacts, and required controls.'
+      FROM safety_plans;
+
+      INSERT INTO safety_inspections (safety_plan_id, inspection_date, inspector, status, findings, corrective_action)
+      SELECT id,
+             DATE '2025-07-20' + (id * INTERVAL '2 days'),
+             CASE WHEN id % 3 = 0 THEN 'Amanda White' WHEN id % 3 = 1 THEN 'Kevin Harris' ELSE 'Safety Coordinator' END,
+             CASE WHEN id % 6 = 0 THEN 'failed' WHEN id % 4 = 0 THEN 'passed' ELSE 'open' END,
+             'Inspection covers site access, housekeeping, PPE, lift plans, fall protection, and hot work controls.',
+             'Assign corrective actions to field superintendent and verify closure before next shift.'
+      FROM safety_plans;
+    `);
+    console.log('Safety plan data seeded.');
+
+    await pool.query(`
+      INSERT INTO subcontractor_scores (subcontractor_id, bid_id, overall_score, availability_score, insurance_score, performance_score, safety_score, scope_fit_score, status)
+      SELECT s.id,
+             ((s.id - 1) % 15) + 1,
+             60 + ((s.id * 3) % 35),
+             55 + ((s.id * 5) % 40),
+             70 + ((s.id * 2) % 25),
+             60 + ((s.id * 4) % 35),
+             65 + ((s.id * 6) % 30),
+             58 + ((s.id * 7) % 38),
+             CASE WHEN s.id % 5 = 0 THEN 'review_required' ELSE 'scored' END
+      FROM subcontractors s
+      WHERE s.id <= 15;
+
+      INSERT INTO subcontractor_evaluations (score_id, evaluator, evaluation_area, rating, notes)
+      SELECT id,
+             CASE WHEN id % 3 = 0 THEN 'Sarah Johnson' WHEN id % 3 = 1 THEN 'Mike Chen' ELSE 'James Wilson' END,
+             CASE WHEN id % 4 = 0 THEN 'Insurance' WHEN id % 4 = 1 THEN 'Performance' WHEN id % 4 = 2 THEN 'Safety History' ELSE 'Scope Fit' END,
+             3 + (id % 3),
+             'Evaluation captures bid fit, availability, documentation quality, safety history, and recent performance.'
+      FROM subcontractor_scores;
+    `);
+    console.log('Subcontractor scoring data seeded.');
+
+    await pool.query(`
+      INSERT INTO change_order_impacts (change_order_id, cost_impact, schedule_impact_days, source_document, risk_level, status, owner, summary)
+      SELECT id,
+             amount,
+             impact_days,
+             'CO-' || LPAD(id::text, 4, '0') || '-source.pdf',
+             CASE WHEN ABS(COALESCE(amount, 0)) > 1000000 OR impact_days > 30 THEN 'critical'
+                  WHEN ABS(COALESCE(amount, 0)) > 300000 OR impact_days > 10 THEN 'high'
+                  ELSE 'medium' END,
+             CASE WHEN status = 'approved' THEN 'approved' WHEN status = 'pending' THEN 'pending_owner' ELSE 'under_review' END,
+             requested_by,
+             'Impact review tracks source document, cost impact, schedule impact, approval state, and responsible owner.'
+      FROM change_orders
+      WHERE id <= 15;
+
+      INSERT INTO change_order_approvals (impact_id, approver, status, decision_date, notes)
+      SELECT id,
+             CASE WHEN id % 3 = 0 THEN 'Project Executive' WHEN id % 3 = 1 THEN 'Owner Representative' ELSE 'Finance Director' END,
+             CASE WHEN status = 'approved' THEN 'approved' WHEN id % 4 = 0 THEN 'needs_changes' ELSE 'pending' END,
+             CASE WHEN status = 'approved' THEN DATE '2025-07-20' + (id * INTERVAL '1 day') ELSE NULL END,
+             'Approval record linked to quantified change order impact.'
+      FROM change_order_impacts;
+    `);
+    console.log('Change order impact data seeded.');
+
+    await pool.query(`
+      CREATE VIEW project_risk_metrics AS
+      SELECT
+        p.id AS project_id,
+        p.name AS project_name,
+        p.status AS project_status,
+        COUNT(DISTINCT ra.id) FILTER (WHERE ra.severity IN ('high', 'critical')) AS high_risk_items,
+        COUNT(DISTINCT pc.id) FILTER (WHERE pc.status = 'blocked') AS permit_blockers,
+        COUNT(DISTINCT sh.id) FILTER (WHERE sh.severity IN ('high', 'critical')) AS safety_exposures,
+        COUNT(DISTINCT coi.id) FILTER (WHERE coi.risk_level IN ('high', 'critical') AND coi.status <> 'approved') AS open_change_impacts,
+        COALESCE(ROUND(AVG(ss.overall_score)::numeric, 1), 0) AS subcontractor_score,
+        LEAST(
+          100,
+          20
+          + (COUNT(DISTINCT ra.id) FILTER (WHERE ra.severity IN ('high', 'critical')) * 10)
+          + (COUNT(DISTINCT pc.id) FILTER (WHERE pc.status = 'blocked') * 12)
+          + (COUNT(DISTINCT sh.id) FILTER (WHERE sh.severity IN ('high', 'critical')) * 8)
+          + (COUNT(DISTINCT coi.id) FILTER (WHERE coi.risk_level IN ('high', 'critical') AND coi.status <> 'approved') * 10)
+        ) AS risk_score
+      FROM projects p
+      LEFT JOIN risk_assessments ra ON ra.project_id = p.id
+      LEFT JOIN permit_checklists pc ON pc.project_id = p.id
+      LEFT JOIN safety_plans sp ON sp.project_id = p.id
+      LEFT JOIN safety_hazards sh ON sh.safety_plan_id = sp.id
+      LEFT JOIN change_orders co ON co.project_id = p.id
+      LEFT JOIN change_order_impacts coi ON coi.change_order_id = co.id
+      LEFT JOIN bids b ON b.project_id = p.id
+      LEFT JOIN subcontractor_scores ss ON ss.bid_id = b.id
+      GROUP BY p.id, p.name, p.status;
+
+      CREATE VIEW bid_readiness_metrics AS
+      SELECT
+        b.id AS bid_id,
+        b.project_id,
+        p.name AS project_name,
+        b.contractor_name,
+        b.status AS bid_status,
+        COALESCE(MAX(brr.overall_score), 0) AS risk_review_score,
+        COUNT(brf.id) FILTER (WHERE brf.finding_type = 'missing_scope') AS missing_scope_findings,
+        COUNT(brf.id) FILTER (WHERE brf.severity IN ('high', 'critical')) AS severe_findings,
+        CASE
+          WHEN COUNT(brf.id) FILTER (WHERE brf.severity = 'critical') > 0 THEN 'not_ready'
+          WHEN COUNT(brf.id) FILTER (WHERE brf.severity = 'high') > 0 THEN 'needs_clarification'
+          ELSE 'ready'
+        END AS readiness_status
+      FROM bids b
+      JOIN projects p ON p.id = b.project_id
+      LEFT JOIN bid_risk_reviews brr ON brr.bid_id = b.id
+      LEFT JOIN bid_risk_findings brf ON brf.review_id = brr.id
+      GROUP BY b.id, b.project_id, p.name, b.contractor_name, b.status;
+    `);
+    console.log('Project risk and bid readiness metric views created.');
+
     // --- AI ANALYSES ---
     await pool.query(`
       INSERT INTO ai_analyses (feature, input_data, output_data, model_used) VALUES
@@ -551,7 +1143,7 @@ const seed = async () => {
     `);
     console.log('AI analyses seeded.');
 
-    console.log('\\nSeeding completed successfully!');
+    console.log('\nSeeding completed successfully!');
     console.log('Default login: admin@constructionbid.com / admin123');
     process.exit(0);
   } catch (err) {
