@@ -33,14 +33,6 @@ import CfAgenticContractNegotiation from './pages/CfAgenticContractNegotiation';
 import CfRealTimeCostTrackingWithVarianceAlerts from './pages/CfRealTimeCostTrackingWithVarianceAlerts';
 import CfLiabilityInsuranceRecommendationEngine from './pages/CfLiabilityInsuranceRecommendationEngine';
 import CfSubcontractorPerformanceScoring from './pages/CfSubcontractorPerformanceScoring';
-import GapNoPhotoSiteVisionAiForProgressOrSafetyInspection from './pages/GapNoPhotoSiteVisionAiForProgressOrSafetyInspection';
-import GapContractorsSubcontractorsLackAiScoringOrPerformancePr from './pages/GapContractorsSubcontractorsLackAiScoringOrPerformancePr';
-import GapNoAgenticBidNegotiationFlow from './pages/GapNoAgenticBidNegotiationFlow';
-import GapNoSupplierDirectoryVendorManagementPortal from './pages/GapNoSupplierDirectoryVendorManagementPortal';
-import GapNoRfqAutomationOrVendorOutreachWorkflow from './pages/GapNoRfqAutomationOrVendorOutreachWorkflow';
-import GapNoEquipmentRentalMarketplaceOrAvailabilityTracker from './pages/GapNoEquipmentRentalMarketplaceOrAvailabilityTracker';
-import GapNoCalendarIntegration from './pages/GapNoCalendarIntegration';
-import GapLimitedMobileFieldAppSurfaces from './pages/GapLimitedMobileFieldAppSurfaces';
 
 import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
 import CodexOperationsFeature from './pages/CodexOperationsFeature';
@@ -148,14 +140,6 @@ function App() {
         <Route path="/cf/real-time-cost-tracking-with-variance-alerts" element={<ProtectedRoute><CfRealTimeCostTrackingWithVarianceAlerts /></ProtectedRoute>} />
         <Route path="/cf/liability-insurance-recommendation-engine" element={<ProtectedRoute><CfLiabilityInsuranceRecommendationEngine /></ProtectedRoute>} />
         <Route path="/cf/subcontractor-performance-scoring" element={<ProtectedRoute><CfSubcontractorPerformanceScoring /></ProtectedRoute>} />
-        <Route path="/gap/no-photo-site-vision-ai-for-progress-or-safety-inspection" element={<ProtectedRoute><GapNoPhotoSiteVisionAiForProgressOrSafetyInspection /></ProtectedRoute>} />
-        <Route path="/gap/contractors-subcontractors-lack-ai-scoring-or-performance-pr" element={<ProtectedRoute><GapContractorsSubcontractorsLackAiScoringOrPerformancePr /></ProtectedRoute>} />
-        <Route path="/gap/no-agentic-bid-negotiation-flow" element={<ProtectedRoute><GapNoAgenticBidNegotiationFlow /></ProtectedRoute>} />
-        <Route path="/gap/no-supplier-directory-vendor-management-portal" element={<ProtectedRoute><GapNoSupplierDirectoryVendorManagementPortal /></ProtectedRoute>} />
-        <Route path="/gap/no-rfq-automation-or-vendor-outreach-workflow" element={<ProtectedRoute><GapNoRfqAutomationOrVendorOutreachWorkflow /></ProtectedRoute>} />
-        <Route path="/gap/no-equipment-rental-marketplace-or-availability-tracker" element={<ProtectedRoute><GapNoEquipmentRentalMarketplaceOrAvailabilityTracker /></ProtectedRoute>} />
-        <Route path="/gap/no-calendar-integration" element={<ProtectedRoute><GapNoCalendarIntegration /></ProtectedRoute>} />
-        <Route path="/gap/limited-mobile-field-app-surfaces" element={<ProtectedRoute><GapLimitedMobileFieldAppSurfaces /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

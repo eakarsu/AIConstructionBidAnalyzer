@@ -48,10 +48,10 @@ router.post('/login', async (req, res) => {
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email, and password are required.' });
+    if (!name || !email || typeof password !== 'string' || password.length < 12) {
+      return res.status(400).json({ error: 'Name, email, and a password of at least 12 characters are required.' });
     }
 
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
@@ -64,7 +64,7 @@ router.post('/register', async (req, res) => {
 
     const result = await pool.query(
       'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, hashedPassword, role || 'user']
+      [name, email, hashedPassword, 'user']
     );
 
     const user = result.rows[0];
