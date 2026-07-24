@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
+const auth = require('../middleware/auth');
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
@@ -88,5 +89,7 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Server error during registration.' });
   }
 });
+
+router.get('/me', auth, (req, res) => res.json({ user: req.user }));
 
 module.exports = router;
