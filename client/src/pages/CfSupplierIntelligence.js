@@ -1,3 +1,4 @@
+import GeneratedAiResponse from './GeneratedAiResponse';
 // // === Batch 02 Gaps & Frontend Mounts ===
 import React, { useState } from 'react';
 
@@ -123,9 +124,7 @@ export default function SupplierIntelligencePage() {
           <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 8 }}>
             Model: {result.model || 'n/a'} | Tokens: {result.tokens || 'n/a'}
           </div>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 13, margin: 0 }}>
-{JSON.stringify(result.ai_result || result, null, 2)}
-          </pre>
+          <GeneratedAiResponse response={result} />
         </div>
       )}
     </div>
