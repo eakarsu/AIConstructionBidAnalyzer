@@ -73,7 +73,7 @@ const LoginPage = () => {
             className="btn btn-outline btn-block"
             onClick={handleQuickLogin}
           >
-            {'\u26a1'} Quick Login (Demo)
+            Auto Fill Demo Credentials
           </button>
         </div>
       </div>
