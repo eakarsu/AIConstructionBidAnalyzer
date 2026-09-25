@@ -11,7 +11,15 @@ app.use(express.json());
 app.use(require('./middleware/auditLogger'));
 
 // Routes
+const createSupplierRfqRouter = require('./routes/supplierRfq');
+const createCalendarRouter = require('./routes/calendar');
+const createSitePhotoReviewRouter = require('./routes/sitePhotoReview');
+const createMobileShellRouter = require('./routes/mobileShell');
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api', createMobileShellRouter(require('./middleware/auth'), require('./db'), {"name":"Construction Field","shortName":"Field","themeColor":"#b45309","queries":[{"kind":"openBids","sql":"SELECT id, title, status, due_at FROM bids WHERE assigned_email = $1 AND status NOT IN ('closed') LIMIT 25"}]}));
+app.use('/api', createCalendarRouter(require('./middleware/auth'), require('./db')));
+app.use('/api', createSitePhotoReviewRouter(require('./middleware/auth'), require('./db')));
+app.use('/api', createSupplierRfqRouter(require('./middleware/auth'), require('./db')));
 app.use('/api/controlled-bids', require('./routes/controlledBids'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/bids', require('./routes/bids'));
