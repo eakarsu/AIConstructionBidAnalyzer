@@ -48,8 +48,24 @@ function parseContent(content) {
   try { return JSON.parse(cleaned); } catch { return content; }
 }
 
+/** OPERATIONS.md promises the generated gap/cf routes are quarantined.
+ *  They only answer when the operator opts in with ENABLE_GENERATED_FEATURES=true. */
+function generatedFeaturesEnabled(env = process.env) {
+  return String(env.ENABLE_GENERATED_FEATURES || '').toLowerCase() === 'true';
+}
+
+function quarantineGate(_req, res, next) {
+  if (!generatedFeaturesEnabled()) {
+    return res.status(503).json({
+      error: 'GeneratedFeatureQuarantined',
+      message: 'Generated /api/gap-* and /api/cf-* features are quarantined. Set ENABLE_GENERATED_FEATURES=true to enable them.',
+    });
+  }
+  next();
+}
+
 for (const [endpoint, title] of Object.entries(FEATURES)) {
-  router.post(`/${endpoint}`, authenticate, async (req, res) => {
+  router.post(`/${endpoint}`, authenticate, quarantineGate, async (req, res) => {
     const input = typeof req.body?.input === 'string' ? req.body.input.trim() : '';
     if (input.length < 10) {
       return res.status(400).json({ error: 'ValidationError', message: 'Input must contain at least 10 characters.' });
@@ -103,4 +119,4 @@ for (const [endpoint, title] of Object.entries(FEATURES)) {
   });
 }
 
-module.exports = { router, FEATURES };
+module.exports = { router, FEATURES, generatedFeaturesEnabled };

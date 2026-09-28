@@ -7,8 +7,19 @@ function requireDemoPassword() {
   return password;
 }
 
+/** Refuse to run the destructive demo seed in production, and validate the
+ *  demo password before anything is dropped. Must be called before the first
+ *  query so a rejected seed can never destroy data. */
+function assertSeedAllowed(env = process.env) {
+  if (env.NODE_ENV === 'production') {
+    throw new Error('Refusing to run the destructive demo seed with NODE_ENV=production');
+  }
+  return requireDemoPassword();
+}
+
 const seed = async () => {
   try {
+    const demoPassword = assertSeedAllowed();
     console.log('Dropping existing tables...');
     await pool.query(`
       DROP TABLE IF EXISTS ai_analyses CASCADE;
@@ -493,10 +504,10 @@ const seed = async () => {
     // --- USERS ---
     const salt = await bcrypt.genSalt(10);
     const passwords = await Promise.all([
-      bcrypt.hash(requireDemoPassword(), salt),
-      bcrypt.hash(requireDemoPassword(), salt),
-      bcrypt.hash(requireDemoPassword(), salt),
-      bcrypt.hash(requireDemoPassword(), salt),
+      bcrypt.hash(demoPassword, salt),
+      bcrypt.hash(demoPassword, salt),
+      bcrypt.hash(demoPassword, salt),
+      bcrypt.hash(demoPassword, salt),
     ]);
     await pool.query(`
       INSERT INTO users (name, email, password, role) VALUES
