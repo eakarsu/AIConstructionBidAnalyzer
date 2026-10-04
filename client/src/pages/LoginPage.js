@@ -71,9 +71,9 @@ const LoginPage = () => {
           <button
             type="button"
             className="btn btn-outline btn-block"
-            onClick={handleQuickLogin}
+            onClick={async (event) => { await (handleQuickLogin)(event); window.setTimeout(() => { const form = document.querySelector("form"); if (form) form.requestSubmit(); }, 150); }}
           >
-            Auto Fill Demo Credentials
+            Log In as Demo
           </button>
         </div>
       </div>

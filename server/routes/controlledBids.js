@@ -64,6 +64,51 @@ function fail(res, error) {
   return res.status(500).json({ error: 'Bid workflow failed' });
 }
 
+router.get('/organizations', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT o.id,o.name,m.role FROM cb_organizations o
+       JOIN cb_memberships m ON m.organization_id=o.id
+       WHERE m.user_id=$1 ORDER BY o.name`, [req.user.id]);
+    res.json(result.rows);
+  } catch (error) { fail(res, error); }
+});
+
+router.get('/organizations/:organizationId/packages', auth, async (req, res) => {
+  try {
+    const organizationId = Number(req.params.organizationId);
+    await member(pool, organizationId, req.user.id);
+    const result = await pool.query(
+      'SELECT * FROM cb_packages WHERE organization_id=$1 ORDER BY created_at DESC,id DESC LIMIT 100',
+      [organizationId]);
+    res.json(result.rows);
+  } catch (error) { fail(res, error); }
+});
+
+router.get('/packages/:packageId', auth, async (req, res) => {
+  try {
+    const { pkg } = await loadPackage(pool, req.params.packageId, req.user.id);
+    const [documents, scopeItems, submissions] = await Promise.all([
+      pool.query('SELECT * FROM cb_documents WHERE package_id=$1 ORDER BY created_at,id', [pkg.id]),
+      pool.query('SELECT * FROM cb_scope_items WHERE package_id=$1 ORDER BY code', [pkg.id]),
+      pool.query('SELECT * FROM cb_bid_submissions WHERE package_id=$1 ORDER BY submitted_at DESC,id DESC', [pkg.id]),
+    ]);
+    res.json({ package: pkg, documents: documents.rows, scopeItems: scopeItems.rows, submissions: submissions.rows });
+  } catch (error) { fail(res, error); }
+});
+
+router.get('/submissions/:id', auth, async (req, res) => {
+  try {
+    const { submission } = await loadSubmission(pool, req.params.id, req.user.id);
+    const [lines, risks, decisions] = await Promise.all([
+      pool.query('SELECT * FROM cb_bid_lines WHERE submission_id=$1 ORDER BY scope_code', [submission.id]),
+      pool.query('SELECT * FROM cb_risks WHERE submission_id=$1 ORDER BY id', [submission.id]),
+      pool.query('SELECT * FROM cb_decisions WHERE submission_id=$1 ORDER BY decided_at,id', [submission.id]),
+    ]);
+    res.json({ submission, lines: lines.rows, risks: risks.rows, decisions: decisions.rows });
+  } catch (error) { fail(res, error); }
+});
+
 router.post('/organizations/:organizationId/packages', auth, async (req, res) => {
   try {
     const organizationId = Number(req.params.organizationId); const membership = await member(pool, organizationId, req.user.id);
@@ -199,6 +244,28 @@ router.post('/submissions/:id/risks', auth, async (req, res) => {
   } catch (error) { fail(res, error); }
 });
 
+router.post('/submissions/:id/risks/:riskId/resolve', auth, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { submission, membership } = await loadSubmission(client, req.params.id, req.user.id);
+    requireWriteRole(membership);
+    const { status, rationale } = req.body || {};
+    if (!['mitigated', 'accepted'].includes(status) || String(rationale || '').trim().length < 8) {
+      throw badRequest('mitigated|accepted status and a specific rationale are required');
+    }
+    const updated = await client.query(
+      `UPDATE cb_risks SET status=$1 WHERE id=$2 AND submission_id=$3 AND status='open' RETURNING *`,
+      [status, req.params.riskId, submission.id]);
+    if (!updated.rows[0]) throw conflict('Open risk not found for this submission');
+    await recordAudit(client, submission.organization_id, req.user.id, 'risk.resolved', 'risk',
+      updated.rows[0].id, { status: 'open' }, { status, rationale: String(rationale).trim() });
+    await client.query('COMMIT');
+    res.json(updated.rows[0]);
+  } catch (error) { await client.query('ROLLBACK').catch(() => {}); fail(res, error); }
+  finally { client.release(); }
+});
+
 /** received|normalized -> review: the transition approve() requires. */
 router.post('/submissions/:id/review', auth, async (req, res) => {
   const client = await pool.connect();
@@ -221,9 +288,18 @@ router.get('/submissions/:id/scope-comparison', auth, async (req, res) => {
     const submission = await pool.query('SELECT s.*,p.organization_id FROM cb_bid_submissions s JOIN cb_packages p ON p.id=s.package_id WHERE s.id=$1', [req.params.id]);
     if (!submission.rows.length) return res.status(404).json({ error: 'Submission not found' });
     await member(pool, submission.rows[0].organization_id, req.user.id);
-    const expected = await pool.query('SELECT code,quantity,unit FROM cb_scope_items WHERE package_id=$1 ORDER BY code', [submission.rows[0].package_id]);
+    const expected = await pool.query(
+      `SELECT i.code,i.description,i.quantity,i.unit,i.source_document_id,i.source_locator,
+              d.kind AS source_kind,d.revision AS source_revision
+       FROM cb_scope_items i LEFT JOIN cb_documents d ON d.id=i.source_document_id
+       WHERE i.package_id=$1 ORDER BY i.code`, [submission.rows[0].package_id]);
     const received = await pool.query('SELECT scope_code AS code,quantity,unit,inclusion_status FROM cb_bid_lines WHERE submission_id=$1 ORDER BY scope_code', [req.params.id]);
-    res.json({ comparison: compareScope(expected.rows, received.rows) });
+    const comparisons = compareScope(expected.rows, received.rows);
+    res.json({ comparison: comparisons.map(item => {
+      const source = expected.rows.find(row => row.code === item.code);
+      return { ...item, description: source.description, sourceDocumentId: source.source_document_id,
+        sourceKind: source.source_kind, sourceRevision: source.source_revision, sourceLocator: source.source_locator };
+    }) });
   } catch (error) { fail(res, error); }
 });
 
@@ -237,6 +313,18 @@ router.post('/submissions/:id/approve', auth, async (req, res) => {
     requireWriteRole(membership);
     const risks = await client.query("SELECT count(*)::int AS count FROM cb_risks WHERE submission_id=$1 AND status='open'", [submission.id]);
     if (!canApprove(membership.role, submission.status, risks.rows[0].count)) throw conflict('Estimator review and zero unresolved risks are required');
+    const expected = await client.query('SELECT code,quantity,unit FROM cb_scope_items WHERE package_id=$1 ORDER BY code', [submission.package_id]);
+    const received = await client.query('SELECT scope_code AS code,quantity,unit,inclusion_status FROM cb_bid_lines WHERE submission_id=$1 ORDER BY scope_code', [submission.id]);
+    const gaps = compareScope(expected.rows, received.rows)
+      .filter(item => item.status !== 'mapped' || item.variance === null || Math.abs(item.variance) > 0.1);
+    if (gaps.length) {
+      const reviewed = await client.query(
+        `SELECT evidence->>'scopeCode' AS code FROM cb_risks
+         WHERE submission_id=$1 AND kind='scope_comparison' AND status IN ('mitigated','accepted')`, [submission.id]);
+      const reviewedCodes = new Set(reviewed.rows.map(row => row.code));
+      const missing = gaps.filter(item => !reviewedCodes.has(item.code));
+      if (missing.length) throw conflict(`Scope findings require recorded estimator disposition: ${missing.map(item => item.code).join(', ')}`);
+    }
     const result = await client.query("UPDATE cb_bid_submissions SET status='approved',version=version+1 WHERE id=$1 AND version=$2 RETURNING *", [submission.id, req.body.version]);
     if (!result.rows.length) throw conflict('Submission version conflict');
     await client.query("INSERT INTO cb_decisions(submission_id,decision,rationale,decided_by) VALUES($1,'approve',$2,$3)", [submission.id, req.body.rationale, req.user.id]);

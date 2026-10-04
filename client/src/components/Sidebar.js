@@ -6,6 +6,7 @@ const navItems = [
   { path: '/', icon: '\ud83d\udcca', label: 'Dashboard' },
   { path: '/projects', icon: '\ud83d\udccb', label: 'Projects' },
   { path: '/bids', icon: '\ud83d\udcb0', label: 'Bids' },
+  { path: '/controlled-bids', icon: '📐', label: 'Controlled Bids' },
   { path: '/contractors', icon: '\ud83d\udc77', label: 'Contractors' },
   { path: '/materials', icon: '\ud83c\udfd7\ufe0f', label: 'Materials' },
   { path: '/labor', icon: '\ud83d\udcbc', label: 'Labor Costs' },

@@ -23,6 +23,7 @@ import BidBondReadinessPage from './pages/BidBondReadinessPage';
 import MissingFeaturesHub from './pages/MissingFeaturesHub';
 import ProductionReadiness from './pages/ProductionReadiness';
 import WorkflowPage from './pages/WorkflowPage';
+import ControlledBidsPage from './pages/ControlledBidsPage';
 import ExpansionFeaturePage from './pages/ExpansionFeaturePage';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
@@ -95,6 +96,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
         <Route path="/bids" element={<ProtectedRoute><BidsPage /></ProtectedRoute>} />
+        <Route path="/controlled-bids" element={<ProtectedRoute><ControlledBidsPage /></ProtectedRoute>} />
         <Route path="/contractors" element={<ProtectedRoute><ContractorsPage /></ProtectedRoute>} />
         <Route path="/materials" element={<ProtectedRoute><MaterialsPage /></ProtectedRoute>} />
         <Route path="/labor" element={<ProtectedRoute><LaborPage /></ProtectedRoute>} />

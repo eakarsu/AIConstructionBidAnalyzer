@@ -21,6 +21,7 @@ app.use('/api', createCalendarRouter(require('./middleware/auth'), require('./db
 app.use('/api', createSitePhotoReviewRouter(require('./middleware/auth'), require('./db')));
 app.use('/api', createSupplierRfqRouter(require('./middleware/auth'), require('./db')));
 app.use('/api/controlled-bids', require('./routes/controlledBids'));
+app.use('/api/controlled-bids', require('./routes/costCatalog'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/bids', require('./routes/bids'));
 app.use('/api/contractors', require('./routes/contractors'));
