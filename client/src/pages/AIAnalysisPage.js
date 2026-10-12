@@ -1,3 +1,5 @@
+import NativeAIControls from "../components/NativeAIControls.jsx";
+import GeneratedAiResponse, { parseAiValue } from './GeneratedAiResponse';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -106,6 +108,18 @@ const AIAnalysisPage = () => {
     }
 
     const analysis = data.analysis || data.result || data;
+    const parsedAnalysis = parseAiValue(analysis);
+    if (parsedAnalysis && typeof parsedAnalysis === 'object') {
+      const structured = Array.isArray(parsedAnalysis) ? parsedAnalysis : {
+        ...parsedAnalysis,
+        ...(data.score !== undefined && parsedAnalysis.score === undefined ? { overall_score: data.score } : {}),
+        ...(data.overall_score !== undefined && parsedAnalysis.overall_score === undefined ? { overall_score: data.overall_score } : {}),
+        ...(data.risk_level !== undefined && parsedAnalysis.risk_level === undefined ? { risk_level: data.risk_level } : {}),
+        ...(data.key_findings !== undefined && parsedAnalysis.key_findings === undefined ? { key_findings: data.key_findings } : {}),
+        ...(data.recommendations !== undefined && parsedAnalysis.recommendations === undefined ? { recommendations: data.recommendations } : {}),
+      };
+      return <GeneratedAiResponse response={{ ...data, analysis: structured }} />;
+    }
     const analysisText = typeof analysis === 'string' ? analysis : (analysis.text || analysis.content || analysis.summary || JSON.stringify(analysis, null, 2));
 
     const sections = parseAnalysisText(analysisText);
@@ -294,7 +308,7 @@ const AIAnalysisPage = () => {
   const needsBid = ['bid-analysis', 'bid-comparison'].includes(activeTab);
 
   return (
-    <div>
+    <NativeAIControls busy={analyzing} context="ConstructionBidAnalyzer"><div>
       {toast && <div className="toast-container"><div className={`toast toast-${toast.type}`}><span>{toast.type === 'success' ? '\u2705' : '\u274c'}</span>{toast.message}<button className="toast-close" onClick={() => setToast(null)}>&times;</button></div></div>}
 
       <div className="page-header">
@@ -320,7 +334,7 @@ const AIAnalysisPage = () => {
         <div className="form-row">
           <div className="form-group">
             <label>Select Project</label>
-            <select className="form-control" value={selectedProjectId} onChange={e => setSelectedProjectId(e.target.value)}>
+            <select data-ai-field={"selectedProjectId"} className="form-control" value={selectedProjectId} onChange={e => setSelectedProjectId(e.target.value)}>
               <option value="">Choose a project...</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -328,7 +342,7 @@ const AIAnalysisPage = () => {
           {needsBid && (
             <div className="form-group">
               <label>Select Bid</label>
-              <select className="form-control" value={selectedBidId} onChange={e => setSelectedBidId(e.target.value)}>
+              <select data-ai-field={"selectedBidId"} className="form-control" value={selectedBidId} onChange={e => setSelectedBidId(e.target.value)}>
                 <option value="">Choose a bid...</option>
                 {bids.filter(b => !selectedProjectId || String(b.project_id) === String(selectedProjectId)).map(b => (
                   <option key={b.id} value={b.id}>{b.contractor_name} - ${Number(b.bid_amount).toLocaleString()}</option>
@@ -340,7 +354,7 @@ const AIAnalysisPage = () => {
 
         <div className="form-group">
           <label>Additional Notes / Context</label>
-          <textarea
+          <textarea data-ai-field={"additionalNotes"}
             className="form-control"
             value={additionalNotes}
             onChange={e => setAdditionalNotes(e.target.value)}
@@ -386,7 +400,7 @@ const AIAnalysisPage = () => {
           })}
         </div>
       )}
-    </div>
+    </div></NativeAIControls>
   );
 };
 

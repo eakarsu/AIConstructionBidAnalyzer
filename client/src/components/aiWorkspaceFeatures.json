@@ -1,0 +1,282 @@
+[
+  {
+    "name": "AgenticContractNegotiationPage",
+    "id": "cf-agentic-contract-negotiation",
+    "title": "Agentic contract negotiation",
+    "description": "Prepare a professional advisory report for agentic contract negotiation using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Agentic contract negotiation for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Agentic contract negotiation data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Agentic contract negotiation.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "LiabilityInsuranceRecommendationEnginePage",
+    "id": "cf-liability-insurance-recommendation-engine",
+    "title": "Liability insurance recommendation engine",
+    "description": "Prepare a professional advisory report for liability insurance recommendation engine using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Liability insurance recommendation engine for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Liability insurance recommendation engine data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Liability insurance recommendation engine.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "RealTimeCostTrackingWithVarianceAlertsPage",
+    "id": "cf-real-time-cost-tracking-with-variance-alerts",
+    "title": "Real-time cost tracking with variance alerts",
+    "description": "Prepare a professional advisory report for real-time cost tracking with variance alerts using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Real-time cost tracking with variance alerts for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Real-time cost tracking with variance alerts data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Real-time cost tracking with variance alerts.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "SubcontractorPerformanceScoringPage",
+    "id": "cf-subcontractor-performance-scoring",
+    "title": "Subcontractor performance scoring",
+    "description": "Prepare a professional advisory report for subcontractor performance scoring using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Subcontractor performance scoring for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Subcontractor performance scoring data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Subcontractor performance scoring.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "SupplierIntelligencePage",
+    "id": "cf-supplier-intelligence",
+    "title": "Supplier intelligence",
+    "description": "Prepare a professional advisory report for supplier intelligence using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Supplier intelligence for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Supplier intelligence data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Supplier intelligence.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "VisionBasedSiteInspectionPage",
+    "id": "cf-vision-based-site-inspection",
+    "title": "Vision-based site inspection",
+    "description": "Prepare a professional advisory report for vision-based site inspection using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Vision-based site inspection for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Vision-based site inspection data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Vision-based site inspection.\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "ContractorsSubcontractorsLackAiScoringOrPerformancePrPage",
+    "id": "gap-contractors-subcontractors-lack-ai-scoring-or-performance-pr",
+    "title": "`contractors`/`subcontractors` lack AI scoring or performance prediction.",
+    "description": "Prepare a professional advisory report for `contractors`/`subcontractors` lack ai scoring or performance prediction. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run `contractors`/`subcontractors` lack AI scoring or performance prediction. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this `contractors`/`subcontractors` lack AI scoring or performance prediction. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for `contractors`/`subcontractors` lack AI scoring or performance prediction..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "LimitedMobileFieldAppSurfacesPage",
+    "id": "gap-limited-mobile-field-app-surfaces",
+    "title": "Limited mobile/field app surfaces.",
+    "description": "Prepare a professional advisory report for limited mobile/field app surfaces. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run Limited mobile/field app surfaces. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this Limited mobile/field app surfaces. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for Limited mobile/field app surfaces..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "NoAgenticBidNegotiationFlowPage",
+    "id": "gap-no-agentic-bid-negotiation-flow",
+    "title": "No agentic bid-negotiation flow.",
+    "description": "Prepare a professional advisory report for no agentic bid-negotiation flow. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run No agentic bid-negotiation flow. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this No agentic bid-negotiation flow. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for No agentic bid-negotiation flow..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "NoCalendarIntegrationPage",
+    "id": "gap-no-calendar-integration",
+    "title": "No calendar integration.",
+    "description": "Prepare a professional advisory report for no calendar integration. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run No calendar integration. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this No calendar integration. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for No calendar integration..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "NoEquipmentRentalMarketplaceOrAvailabilityTrackerPage",
+    "id": "gap-no-equipment-rental-marketplace-or-availability-tracker",
+    "title": "No equipment rental marketplace or availability tracker.",
+    "description": "Prepare a professional advisory report for no equipment rental marketplace or availability tracker. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run No equipment rental marketplace or availability tracker. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this No equipment rental marketplace or availability tracker. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for No equipment rental marketplace or availability tracker..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "NoPhotoSiteVisionAiForProgressOrSafetyInspectionPage",
+    "id": "gap-no-photo-site-vision-ai-for-progress-or-safety-inspection",
+    "title": "No photo / site-vision AI for progress or safety inspection.",
+    "description": "Prepare a professional advisory report for no photo / site-vision ai for progress or safety inspection. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run No photo / site-vision AI for progress or safety inspection. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this No photo / site-vision AI for progress or safety inspection. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for No photo / site-vision AI for progress or safety inspection..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "NoRfqAutomationOrVendorOutreachWorkflowPage",
+    "id": "gap-no-rfq-automation-or-vendor-outreach-workflow",
+    "title": "No RFQ automation or vendor outreach workflow.",
+    "description": "Prepare a professional advisory report for no rfq automation or vendor outreach workflow. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run No RFQ automation or vendor outreach workflow. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this No RFQ automation or vendor outreach workflow. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for No RFQ automation or vendor outreach workflow..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  },
+  {
+    "name": "NoSupplierDirectoryVendorManagementPortalPage",
+    "id": "gap-no-supplier-directory-vendor-management-portal",
+    "title": "No supplier directory / vendor-management portal.",
+    "description": "Prepare a professional advisory report for no supplier directory / vendor-management portal. using the brief and evidence you provide. Review the findings, assumptions, and action plan before applying changes.",
+    "samples": [
+      {
+        "label": "Scenario",
+        "value": "Run No supplier directory / vendor-management portal. for a realistic customer case.\nContext: a team needs a practical recommendation based on incomplete operating data.\nGoal: identify the best action, key risks, missing information, and expected business impact.\nReturn: summary, prioritized action plan, assumptions, and follow-up questions."
+      },
+      {
+        "label": "Data sample",
+        "value": "Analyze this No supplier directory / vendor-management portal. data sample.\nInput records:\n- Record 1: urgent, customer impact high, owner unassigned\n- Record 2: medium priority, blocked by missing data\n- Record 3: recurring issue, automation opportunity\nReturn structured findings, anomalies, recommendations, and confidence."
+      },
+      {
+        "label": "Executive review",
+        "value": "Prepare an executive review for No supplier directory / vendor-management portal..\nAudience: business owner, operations lead, and implementation team.\nInclude impact, risk, estimated effort, decision points, and a concise next-step plan."
+      }
+    ]
+  }
+]

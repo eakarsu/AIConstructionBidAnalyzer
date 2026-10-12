@@ -1,3 +1,4 @@
+import AIReportLibrary from "./AIReportLibrary";
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -91,7 +92,7 @@ const Sidebar = () => {
           <span>{'\ud83d\udeaa'}</span> <span>Sign Out</span>
         </button>
       </div>
-    </div>
+    <AIReportLibrary /></div>
   );
 };
 

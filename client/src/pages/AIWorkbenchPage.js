@@ -1,3 +1,5 @@
+import NativeAIControls from "../components/NativeAIControls.jsx";
+import GeneratedAiResponse from './GeneratedAiResponse';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -199,22 +201,6 @@ function bidRecord(bid) {
   ].filter(Boolean).join('\n');
 }
 
-function renderValue(v) {
-  if (v == null) return null;
-  if (Array.isArray(v)) return <ul style={{ margin: '4px 0', paddingLeft: 18 }}>{v.map((x, i) => <li key={i} style={{ fontSize: 14, color: '#334155' }}>{typeof x === 'object' ? Object.values(x).filter(Boolean).join(' — ') : String(x)}</li>)}</ul>;
-  if (typeof v === 'object') return <div style={{ paddingLeft: 8 }}>{Object.entries(v).map(([k, val]) => <Section key={k} k={k} v={val} />)}</div>;
-  return <p style={{ fontSize: 14, color: '#334155', margin: '4px 0', whiteSpace: 'pre-wrap' }}>{String(v)}</p>;
-}
-function Section({ k, v }) {
-  if (v == null || v === '') return null;
-  return (
-    <div style={{ marginBottom: 10 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, color: '#64748b', marginBottom: 2 }}>{k.replace(/_/g, ' ')}</div>
-      {renderValue(v)}
-    </div>
-  );
-}
-
 export default function AIWorkbenchPage() {
   const [featureKey, setFeatureKey] = useState(FEATURES[0].key);
   const [outputKey, setOutputKey] = useState('scenario');
@@ -305,7 +291,7 @@ export default function AIWorkbenchPage() {
       };
       const res = await axios.post(feature.endpoint, body, { headers: { Authorization: `Bearer ${token}` } });
       const data = res.data || {};
-      setResult(data.ai_result || data.result || data.analysis || data);
+      setResult(data);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -314,7 +300,7 @@ export default function AIWorkbenchPage() {
   };
 
   return (
-    <div style={{ maxWidth: 940, margin: '0 auto', padding: 24 }}>
+    <NativeAIControls busy={loading} context="ConstructionBidAnalyzer"><div style={{ maxWidth: 940, margin: '0 auto', padding: 24 }}>
       <h2 style={{ marginBottom: 4 }}>🤖 AI Workbench</h2>
       <p style={{ opacity: 0.75, marginBottom: 20 }}>Every AI capability in one place — pick a feature, use a quick-fill button or enter your own details, and run.</p>
 
@@ -322,7 +308,7 @@ export default function AIWorkbenchPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 6 }}>
           <div>
             <label style={lbl}>AI Feature</label>
-            <select style={inp} value={featureKey} onChange={(e) => { setFeatureKey(e.target.value); setResult(null); }}>
+            <select data-ai-exclude="true" data-ai-field={"featureKey"} style={inp} value={featureKey} onChange={(e) => { setFeatureKey(e.target.value); setResult(null); }}>
               {['Analysis', 'Custom Feature', 'Gap'].map((g) => (
                 <optgroup key={g} label={g === 'Custom Feature' ? 'Custom Features' : g === 'Gap' ? 'Gap Features' : g}>
                   {FEATURES.filter((f) => f.group === g).map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
@@ -332,7 +318,7 @@ export default function AIWorkbenchPage() {
           </div>
           <div>
             <label style={lbl}>Output Type</label>
-            <select style={inp} value={outputKey} onChange={(e) => setOutputKey(e.target.value)}>
+            <select data-ai-field={"outputKey"} style={inp} value={outputKey} onChange={(e) => setOutputKey(e.target.value)}>
               {OUTPUTS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
             </select>
           </div>
@@ -353,14 +339,14 @@ export default function AIWorkbenchPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
           <div>
             <label style={lbl}>Project (optional)</label>
-            <select style={inp} value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+            <select data-ai-field={"projectId"} style={inp} value={projectId} onChange={(e) => setProjectId(e.target.value)}>
               <option value="">— none —</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name || p.title || `Project ${p.id}`}</option>)}
             </select>
           </div>
           <div>
             <label style={lbl}>Bid (optional)</label>
-            <select style={inp} value={bidId} onChange={(e) => setBidId(e.target.value)}>
+            <select data-ai-field={"bidId"} style={inp} value={bidId} onChange={(e) => setBidId(e.target.value)}>
               <option value="">— none —</option>
               {bids.map((b) => <option key={b.id} value={b.id}>{bidLabel(b)}</option>)}
             </select>
@@ -368,15 +354,15 @@ export default function AIWorkbenchPage() {
         </div>
         <div style={{ marginBottom: 12 }}>
           <label style={lbl}>Context / Scenario</label>
-          <textarea style={{ ...inp, minHeight: 64 }} value={context} onChange={(e) => setContext(e.target.value)} placeholder="Describe the situation, project, or constraints…" />
+          <textarea data-ai-field={"context"} style={{ ...inp, minHeight: 64 }} value={context} onChange={(e) => setContext(e.target.value)} placeholder="Describe the situation, project, or constraints…" />
         </div>
         <div style={{ marginBottom: 12 }}>
           <label style={lbl}>Data / Records</label>
-          <textarea style={{ ...inp, minHeight: 80, fontFamily: 'monospace', fontSize: 13 }} value={records} onChange={(e) => setRecords(e.target.value)} placeholder="Paste relevant records, line items, or metrics…" />
+          <textarea data-ai-field={"records"} style={{ ...inp, minHeight: 80, fontFamily: 'monospace', fontSize: 13 }} value={records} onChange={(e) => setRecords(e.target.value)} placeholder="Paste relevant records, line items, or metrics…" />
         </div>
         <div style={{ marginBottom: 16 }}>
           <label style={lbl}>Objective</label>
-          <input style={inp} value={objective} onChange={(e) => setObjective(e.target.value)} placeholder="What decision or output do you need?" />
+          <input data-ai-field={"objective"} style={inp} value={objective} onChange={(e) => setObjective(e.target.value)} placeholder="What decision or output do you need?" />
         </div>
 
         <button onClick={run} disabled={loading}
@@ -387,12 +373,7 @@ export default function AIWorkbenchPage() {
 
       {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: 12, borderRadius: 8, marginBottom: 16, fontSize: 14 }}>{error}</div>}
 
-      {result && (
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20 }}>
-          <h3 style={{ marginTop: 0, marginBottom: 12 }}>{feature.label} — {output.label}</h3>
-          {renderValue(result)}
-        </div>
-      )}
-    </div>
+      {result && <GeneratedAiResponse response={{ ...result, title: `${feature.label} — ${output.label}` }} />}
+    </div></NativeAIControls>
   );
 }

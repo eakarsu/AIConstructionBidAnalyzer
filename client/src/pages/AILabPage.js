@@ -1,3 +1,5 @@
+import NativeAIControls from "../components/NativeAIControls.jsx";
+import GeneratedAiResponse from './GeneratedAiResponse';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -229,39 +231,7 @@ const AILabPage = () => {
     }
   };
 
-  const renderResult = (data) => {
-    if (!data) return null;
-    if (data.error) {
-      return (
-        <div className="ai-result">
-          <div className="ai-result-header" style={{ background: 'linear-gradient(135deg, #e63946, #d32f2f)' }}>
-            <span>❌</span>
-            <h3>Analysis Error</h3>
-          </div>
-          <div className="ai-result-body">
-            <div className="ai-finding"><p>{data.message}</p></div>
-          </div>
-        </div>
-      );
-    }
-    const text = data.analysis || data.result || (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
-    return (
-      <div className="ai-result">
-        <div className="ai-result-header">
-          <span style={{ fontSize: '1.5rem' }}>{activeFeature.icon}</span>
-          <div>
-            <h3>{data.label || activeFeature.label} Results</h3>
-            <span className="text-sm" style={{ opacity: 0.7 }}>{new Date(data.timestamp).toLocaleString()}</span>
-          </div>
-        </div>
-        <div className="ai-result-body">
-          <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.875rem', lineHeight: '1.6' }}>
-            {typeof text === 'string' ? text : JSON.stringify(text, null, 2)}
-          </pre>
-        </div>
-      </div>
-    );
-  };
+  const renderResult = (data) => <GeneratedAiResponse response={data} />;
 
   const renderForm = () => {
     switch (activeTab) {
@@ -270,11 +240,11 @@ const AILabPage = () => {
           <>
             <div className="form-group">
               <label>Project Scope (optional)</label>
-              <textarea className="form-control" rows="2" value={scopeDescription} onChange={e => setScopeDescription(e.target.value)} />
+              <textarea data-ai-field={"scopeDescription"} className="form-control" rows="2" value={scopeDescription} onChange={e => setScopeDescription(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Subcontractor Quotes (JSON array)</label>
-              <textarea className="form-control" rows="6" style={{ fontFamily: 'monospace', fontSize: '0.85rem' }} value={subcontractorQuotesText} onChange={e => setSubcontractorQuotesText(e.target.value)} />
+              <textarea data-ai-field={"subcontractorQuotesText"} className="form-control" rows="6" style={{ fontFamily: 'monospace', fontSize: '0.85rem' }} value={subcontractorQuotesText} onChange={e => setSubcontractorQuotesText(e.target.value)} />
               <small className="text-muted">Each entry: {`{ "company": "...", "amount": 12345, ...optional }`}</small>
             </div>
           </>
@@ -285,20 +255,20 @@ const AILabPage = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Budget Target ($) *</label>
-                <input type="number" className="form-control" value={budgetTarget} onChange={e => setBudgetTarget(e.target.value)} />
+                <input data-ai-field={"budgetTarget"} type="number" className="form-control" value={budgetTarget} onChange={e => setBudgetTarget(e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Current Estimate ($)</label>
-                <input type="number" className="form-control" value={currentEstimate} onChange={e => setCurrentEstimate(e.target.value)} />
+                <input data-ai-field={"currentEstimate"} type="number" className="form-control" value={currentEstimate} onChange={e => setCurrentEstimate(e.target.value)} />
               </div>
             </div>
             <div className="form-group">
               <label>Project Description</label>
-              <textarea className="form-control" rows="2" value={projectDescription} onChange={e => setProjectDescription(e.target.value)} />
+              <textarea data-ai-field={"projectDescription"} className="form-control" rows="2" value={projectDescription} onChange={e => setProjectDescription(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Scope</label>
-              <textarea className="form-control" rows="2" value={scope} onChange={e => setScope(e.target.value)} />
+              <textarea data-ai-field={"scope"} className="form-control" rows="2" value={scope} onChange={e => setScope(e.target.value)} />
             </div>
           </>
         );
@@ -308,24 +278,24 @@ const AILabPage = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Contract Value ($)</label>
-                <input type="number" className="form-control" value={contractValue} onChange={e => setContractValue(e.target.value)} />
+                <input data-ai-field={"contractValue"} type="number" className="form-control" value={contractValue} onChange={e => setContractValue(e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Retainage %</label>
-                <input type="number" className="form-control" value={retainagePct} onChange={e => setRetainagePct(e.target.value)} />
+                <input data-ai-field={"retainagePct"} type="number" className="form-control" value={retainagePct} onChange={e => setRetainagePct(e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Payment Terms</label>
-                <input className="form-control" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
+                <input data-ai-field={"paymentTerms"} className="form-control" value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
               </div>
             </div>
             <div className="form-group">
               <label>Project Description</label>
-              <textarea className="form-control" rows="2" value={projectDescription} onChange={e => setProjectDescription(e.target.value)} />
+              <textarea data-ai-field={"projectDescription"} className="form-control" rows="2" value={projectDescription} onChange={e => setProjectDescription(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Schedule / Milestones *</label>
-              <textarea className="form-control" rows="4" value={scheduleText} onChange={e => setScheduleText(e.target.value)} />
+              <textarea data-ai-field={"scheduleText"} className="form-control" rows="4" value={scheduleText} onChange={e => setScheduleText(e.target.value)} />
             </div>
           </>
         );
@@ -334,7 +304,7 @@ const AILabPage = () => {
           <>
             <div className="form-group">
               <label>Change Order (optional)</label>
-              <select className="form-control" value={changeOrderId} onChange={e => setChangeOrderId(e.target.value)}>
+              <select data-ai-field={"changeOrderId"} className="form-control" value={changeOrderId} onChange={e => setChangeOrderId(e.target.value)}>
                 <option value="">No specific change order</option>
                 {changeOrders.map(co => <option key={co.id} value={co.id}>#{co.id} {co.title || co.description}</option>)}
               </select>
@@ -342,20 +312,20 @@ const AILabPage = () => {
             <div className="form-row">
               <div className="form-group">
                 <label>Contract Type</label>
-                <input className="form-control" value={contractType} onChange={e => setContractType(e.target.value)} />
+                <input data-ai-field={"contractType"} className="form-control" value={contractType} onChange={e => setContractType(e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Disputed Amount ($)</label>
-                <input type="number" className="form-control" value={disputedAmount} onChange={e => setDisputedAmount(e.target.value)} />
+                <input data-ai-field={"disputedAmount"} type="number" className="form-control" value={disputedAmount} onChange={e => setDisputedAmount(e.target.value)} />
               </div>
             </div>
             <div className="form-group">
               <label>Dispute Description *</label>
-              <textarea className="form-control" rows="4" value={disputeDescription} onChange={e => setDisputeDescription(e.target.value)} />
+              <textarea data-ai-field={"disputeDescription"} className="form-control" rows="4" value={disputeDescription} onChange={e => setDisputeDescription(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Relevant Contract Clauses</label>
-              <textarea className="form-control" rows="3" value={contractClauses} onChange={e => setContractClauses(e.target.value)} />
+              <textarea data-ai-field={"contractClauses"} className="form-control" rows="3" value={contractClauses} onChange={e => setContractClauses(e.target.value)} />
             </div>
           </>
         );
@@ -363,14 +333,14 @@ const AILabPage = () => {
         return (
           <div className="form-group">
             <label>Notes / Context</label>
-            <textarea className="form-control" rows="4" value={genericNotes} onChange={e => setGenericNotes(e.target.value)} placeholder="Provide context for the AI..." />
+            <textarea data-ai-field={"genericNotes"} className="form-control" rows="4" value={genericNotes} onChange={e => setGenericNotes(e.target.value)} placeholder="Provide context for the AI..." />
           </div>
         );
     }
   };
 
   return (
-    <div>
+    <NativeAIControls busy={analyzing} context="ConstructionBidAnalyzer"><div>
       {toast && <div className="toast-container"><div className={`toast toast-${toast.type}`}><span>{toast.type === 'success' ? '✅' : '❌'}</span>{toast.message}<button className="toast-close" onClick={() => setToast(null)}>×</button></div></div>}
 
       <div className="page-header">
@@ -396,14 +366,14 @@ const AILabPage = () => {
         <div className="form-row">
           <div className="form-group">
             <label>Project (optional)</label>
-            <select className="form-control" value={projectId} onChange={e => setProjectId(e.target.value)}>
+            <select data-ai-field={"projectId"} className="form-control" value={projectId} onChange={e => setProjectId(e.target.value)}>
               <option value="">No project link</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>Bid (optional)</label>
-            <select className="form-control" value={bidId} onChange={e => setBidId(e.target.value)}>
+            <select data-ai-field={"bidId"} className="form-control" value={bidId} onChange={e => setBidId(e.target.value)}>
               <option value="">No bid link</option>
               {bids.filter(b => !projectId || String(b.project_id) === String(projectId)).map(b => (
                 <option key={b.id} value={b.id}>{b.contractor_name} - ${Number(b.bid_amount).toLocaleString()}</option>
@@ -451,7 +421,7 @@ const AILabPage = () => {
           })}
         </div>
       )}
-    </div>
+    </div></NativeAIControls>
   );
 };
 

@@ -240,12 +240,40 @@ function ItemCard({ item, index, depth }) {
   );
 }
 
+function ObjectTable({ rows, depth }) {
+  const columns = [...new Set(rows.flatMap((row) => Object.keys(row)))];
+  return (
+    <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: 12, background: '#fff' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: Math.max(420, columns.length * 140) }}>
+        <thead>
+          <tr style={{ background: '#f1f5f9', textAlign: 'left' }}>
+            {columns.map((column) => <th key={column} style={{ padding: '10px 12px', color: '#475569', fontSize: 11, textTransform: 'uppercase', letterSpacing: '.04em' }}>{displayLabel(column)}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={index} style={{ borderTop: '1px solid #e2e8f0' }}>
+              {columns.map((column) => <td key={column} style={{ padding: '10px 12px', verticalAlign: 'top', minWidth: 120 }}><StructuredValue value={row[column]} depth={depth + 1} /></td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function StructuredValue({ value, depth = 0, fieldKey = '' }) {
   const parsed = parseAiValue(value);
   if (fieldKey === 'confidence' || fieldKey === 'ai_confidence') return <Confidence value={parsed} />;
   if (parsed == null || ['string', 'number', 'boolean'].includes(typeof parsed)) return <Primitive value={parsed} />;
   if (Array.isArray(parsed)) {
     if (!parsed.length) return <span style={{ color: '#64748b' }}>No items reported</span>;
+    const columns = parsed.every((item) => item && typeof item === 'object' && !Array.isArray(item))
+      ? [...new Set(parsed.flatMap((item) => Object.keys(item)))]
+      : [];
+    const isTable = parsed.length > 1 && columns.length > 1 && columns.length <= 8
+      && parsed.every((item) => columns.every((column) => item[column] == null || typeof parseAiValue(item[column]) !== 'object'));
+    if (isTable) return <ObjectTable rows={parsed} depth={depth} />;
     return <div style={{ display: 'grid', gap: 10 }}>{parsed.map((item, index) => <ItemCard key={index} item={item} index={index} depth={depth} />)}</div>;
   }
 
@@ -294,7 +322,7 @@ export default function GeneratedAiResponse({ response }) {
   const hasExplicitContent = ['result', 'ai_result', 'content', 'analysis', 'structured', 'output', 'response', 'data']
     .some((key) => payload[key] !== undefined && payload[key] !== null && payload[key] !== '');
   const isError = Boolean(payload.error) && !hasExplicitContent && !payload.choices?.[0]?.message?.content;
-  const title = payload.title || (payload.feature ? displayLabel(payload.feature) : (isError ? 'AI request could not be completed' : 'AI-generated analysis'));
+  const title = payload.title || payload.label || (payload.feature ? displayLabel(payload.feature) : (isError ? 'AI request could not be completed' : 'AI-generated analysis'));
   const model = payload.model ?? payload.model_used ?? payload.providerReceipt?.model;
   const tokenCount = payload.usage?.total_tokens ?? payload.providerReceipt?.usage?.total_tokens ?? payload.tokens;
   const copyText = `${title}\n\n${toPlainText(content)}`;
