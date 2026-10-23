@@ -56,6 +56,7 @@ app.use('/api/ai', require('./routes/agenticNegotiation'));
 app.use('/api/ai', require('./routes/supplierIntel'));
 app.use('/api/ai', require('./routes/siteVision'));
 app.use('/api/export', require('./routes/export'));
+  app.use('/api/feature-pack', require('./routes/featurePack'));
 
 // Health check
 app.get('/api/health', (req, res) => {
